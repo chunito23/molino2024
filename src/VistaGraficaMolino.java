@@ -8,10 +8,16 @@ import java.util.List;
 public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
     private ControladorGraficoMolino controlador;
     private List<JButton> botones;
+    private JTextField cuadroTexto;
 
     public VistaGraficaMolino() {
         setTitle("Juego del Molino");
         setLayout(new BorderLayout());
+
+        // Crear el panel para el cuadro de texto
+        JPanel panelTexto = new JPanel(new BorderLayout());
+        cuadroTexto = new JTextField();
+        panelTexto.add(cuadroTexto, BorderLayout.CENTER);
 
         // Crear el panel principal con un GridBagLayout
         JPanel panelTablero = new JPanel(new GridBagLayout());
@@ -24,9 +30,11 @@ public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
             final int indice = i;
             boton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+
                     if (!controlador.hacerMovimiento(indice)) {
                         JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
                     }
+                    cuadroTexto.setText(controlador.getFase());
                 }
             });
             botones.add(boton);
@@ -58,8 +66,10 @@ public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
         colocarBoton(panelTablero, gbc, 22, 6, 3);
         colocarBoton(panelTablero, gbc, 23, 6, 6);
 
+        // Añadir los paneles al JFrame
+        add(panelTexto, BorderLayout.NORTH);
         add(panelTablero, BorderLayout.CENTER);
-        setSize(600, 600);
+        setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 

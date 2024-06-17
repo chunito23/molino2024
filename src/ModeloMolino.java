@@ -10,6 +10,7 @@ public class ModeloMolino {
     private boolean juegoTerminado;
     private FaseJuego faseActual;
     private ArrayList<Object> cambios = new ArrayList<>();
+    private Celda celdaAux = new Celda(-1,-1);
 
     public ModeloMolino() {
         celdas = new ArrayList<>();
@@ -243,17 +244,16 @@ public class ModeloMolino {
         if (faseActual == FaseJuego.COLOCACION) {
             return colocarFicha(indice);
         } else if (faseActual == FaseJuego.MOVIMIENTO) {
-            return false;
+            return MoverFicha(indice);
         } else if (faseActual == FaseJuego.ELIMINACION) {
             return Elimnar(indice);
-        } else if (faseActual == FaseJuego.FIN) {
-            juegoTerminado = true;
         }
         return false;
     }
 
     private boolean colocarFicha(int indice) {
-        if (jugadorActual.getFichasDisponibles() > 0) {
+        if (jugadorActual.getFichasDisponibles() > 0 && jugadorActual.getSimbolo() != celdas.get(indice).getValor())
+        {
             celdas.get(indice).setValor(jugadorActual.getSimbolo());
             jugadorActual.disminuirFichasDisponibles();
             jugadorActual.aumentarFichasEnTablero();
@@ -267,6 +267,19 @@ public class ModeloMolino {
             return true;
         }
         return false;
+    }
+
+    private boolean MoverFicha(int indice) {
+        if(celdaAux.getX() == -1){
+            celdaAux = celdas.get(indice);
+            celdas.get(indice).setValor('-');
+        }else{
+            celdas.get(indice).setValor(celdaAux.getValor());
+            celdaAux.setX(-1);
+            cambiarJugador();
+        }
+        notificarObservadores(cambios);
+        return true;
     }
 
     private boolean Elimnar(int indice) {
@@ -284,7 +297,7 @@ public class ModeloMolino {
                 {
                     faseActual = FaseJuego.MOVIMIENTO;
                 }else if(jugador1.getFichasEnTablero() == 0 && jugador2.getFichasEnTablero() == 0 ){
-                    faseActual = FaseJuego.FIN;
+                    juegoTerminado = true;
                 }else{
                     faseActual = FaseJuego.COLOCACION;
                 }

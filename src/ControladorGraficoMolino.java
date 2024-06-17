@@ -18,7 +18,7 @@ public class ControladorGraficoMolino implements ObservadorMolino{
             texto = "Colocasion";
         }
         else if(fase == FaseJuego.MOVIMIENTO){
-            texto = "Colocasion";
+            texto = "movimiento";
         }
         return texto;
     }
