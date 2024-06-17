@@ -1,4 +1,4 @@
-public class ControladorGraficoMolino {
+public class ControladorGraficoMolino implements ObservadorMolino{
     private ModeloMolino modelo;
     private VistaGraficaMolino vistaGrafica;
 
@@ -25,5 +25,11 @@ public class ControladorGraficoMolino {
 
     public boolean hacerMovimiento(int indice) {
         return modelo.hacerMovimiento(indice);
+    }
+
+
+    @Override
+    public void actualizar(Object cambios) {
+
     }
 }

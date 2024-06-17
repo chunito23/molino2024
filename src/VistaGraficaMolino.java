@@ -24,7 +24,6 @@ public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
             final int indice = i;
             boton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    setTitle(controlador.getFase());
                     if (!controlador.hacerMovimiento(indice)) {
                         JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
                     }
@@ -75,12 +74,16 @@ public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
     }
 
     @Override
-    public void actualizar(ModeloMolino modelo) {
-        actualizarTablero(modelo.getCeldas());
-        if (modelo.isJuegoTerminado()) {
+    public void actualizar(Object cambios) {
+        ArrayList<Object> cambioslist = (ArrayList<Object>) cambios;
+        ArrayList<Celda> celdas = (ArrayList<Celda>) cambioslist.get(0);
+        Jugador jactual = (Jugador) cambioslist.get(1);
+        FaseJuego faseActual = (FaseJuego) cambioslist.get(2);
+        actualizarTablero(celdas);//tablero
+        if (controlador.isJuegoTerminado()) {
             JOptionPane.showMessageDialog(this, "¡Juego terminado!");
         } else {
-            setTitle("Turno del jugador " + modelo.getJugadorActual().getSimbolo());
+            setTitle("Turno del jugador " + jactual.getSimbolo() + "\n" + faseActual);
         }
     }
 

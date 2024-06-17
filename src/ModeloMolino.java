@@ -9,6 +9,7 @@ public class ModeloMolino {
     private List<ObservadorMolino> observadores;
     private boolean juegoTerminado;
     private FaseJuego faseActual;
+    private ArrayList<Object> cambios = new ArrayList<>();
 
     public ModeloMolino() {
         celdas = new ArrayList<>();
@@ -20,6 +21,10 @@ public class ModeloMolino {
         faseActual = FaseJuego.COLOCACION;
         inicializarCeldas();
         establecerVecinos();
+        //estado inicial de la partida
+        cambios.add(celdas);
+        cambios.add(jugadorActual);
+        cambios.add(faseActual);
     }
 
     private void inicializarCeldas() {
@@ -220,23 +225,29 @@ public class ModeloMolino {
     }
 
 
-    public void notificarObservadores() {
+    public void setCambios(ArrayList<Object> cambios) {
+        this.cambios = cambios;
+    }
+
+    public void notificarObservadores(Object cambios) {
+        System.out.println(faseActual + " " + jugadorActual.getSimbolo());
         for (ObservadorMolino observador : observadores) {
-            observador.actualizar(this);
+            observador.actualizar(cambios);
         }
     }
 
-    public boolean hacerMovimiento(int indice) {
-        if (indice < 0 || indice >= 24 || !celdas.get(indice).estaVacia() || juegoTerminado) {
+    public boolean hacerMovimiento(int indice) { //las celdas
+        if (indice < 0 || indice >= 24 || juegoTerminado) {
             return false;
         }
-        System.out.println("paso");
         if (faseActual == FaseJuego.COLOCACION) {
             return colocarFicha(indice);
         } else if (faseActual == FaseJuego.MOVIMIENTO) {
-            // Implementar lógica de movimiento de fichas
+            return false;
         } else if (faseActual == FaseJuego.ELIMINACION) {
-            // Implementar lógica de eliminación de fichas
+            return Elimnar(indice);
+        } else if (faseActual == FaseJuego.FIN) {
+            juegoTerminado = true;
         }
         return false;
     }
@@ -248,22 +259,48 @@ public class ModeloMolino {
             jugadorActual.aumentarFichasEnTablero();
             if (comprobarMolino(indice)) {
                 faseActual = FaseJuego.ELIMINACION;
-                System.out.println("hay molino");
             } else {
                 cambiarJugador();
-            }
-            notificarObservadores();
+            };
+
+            notificarObservadores(cambios);
             return true;
         }
         return false;
     }
 
+    private boolean Elimnar(int indice) {
+        boolean retorno;
+        System.out.println("entra");
+            if (jugadorActual.getSimbolo() != celdas.get(indice).getValor() && '-' != celdas.get(indice).getValor()){
+                celdas.get(indice).setValor('-');
+                if (jugadorActual == jugador1)
+                {
+                    jugador1.DisminuirFichasEnTablero();
+                }else{
+                    jugador2.DisminuirFichasEnTablero();
+                }
+                if(jugador1.getFichasDisponibles() == 0 && jugador2.getFichasDisponibles() == 0 )
+                {
+                    faseActual = FaseJuego.MOVIMIENTO;
+                }else if(jugador1.getFichasEnTablero() == 0 && jugador2.getFichasEnTablero() == 0 ){
+                    faseActual = FaseJuego.FIN;
+                }else{
+                    faseActual = FaseJuego.COLOCACION;
+                }
+                cambiarJugador();
+                retorno = true;
+            }else{
+                retorno = false;
+            }
+            notificarObservadores(cambios);
+            return retorno;
+
+    }
+
     private boolean comprobarMolino(int indice) {
         Celda celda = celdas.get(indice);
         boolean molino = false;
-        for (int i = 0; i < celda.getVecinos().size() ; i++) {
-            System.out.println(celda.getVecinos().get(i).getX() + " " +  celda.getVecinos().get(i).getY() );
-        }
         if (
                 (celda.getVecinos().get(0).getValor() == jugadorActual.getSimbolo() &&
                  celda.getVecinos().get(1).getValor() == jugadorActual.getSimbolo()

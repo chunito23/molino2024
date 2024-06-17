@@ -1,3 +1,3 @@
 public interface ObservadorMolino {
-    void actualizar(ModeloMolino modelo);
+    void actualizar(Object cambios);
 }

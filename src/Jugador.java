@@ -17,6 +17,10 @@ public class Jugador {
         return fichasDisponibles;
     }
 
+    public int getFichasEnTablero() {
+        return fichasEnTablero;
+    }
+
     public void disminuirFichasDisponibles() {
         if (fichasDisponibles > 0) {
             fichasDisponibles--;
@@ -25,5 +29,9 @@ public class Jugador {
 
     public void aumentarFichasEnTablero() {
         fichasEnTablero++;
+    }
+
+    public void DisminuirFichasEnTablero() {
+        fichasEnTablero--;
     }
 }
