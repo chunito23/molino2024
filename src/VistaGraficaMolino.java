@@ -24,6 +24,7 @@ public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
             final int indice = i;
             boton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                    setTitle(controlador.getFase());
                     if (!controlador.hacerMovimiento(indice)) {
                         JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
                     }
@@ -34,28 +35,28 @@ public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
 
         // Colocar botones en las posiciones específicas
         colocarBoton(panelTablero, gbc, 0, 0, 0);
-        colocarBoton(panelTablero, gbc, 1, 3, 0);
-        colocarBoton(panelTablero, gbc, 2, 6, 0);
+        colocarBoton(panelTablero, gbc, 1, 0, 3);
+        colocarBoton(panelTablero, gbc, 2, 0, 6);
         colocarBoton(panelTablero, gbc, 3, 1, 1);
-        colocarBoton(panelTablero, gbc, 4, 3, 1);
-        colocarBoton(panelTablero, gbc, 5, 5, 1);
+        colocarBoton(panelTablero, gbc, 4, 1, 3);
+        colocarBoton(panelTablero, gbc, 5, 1, 5);
         colocarBoton(panelTablero, gbc, 6, 2, 2);
-        colocarBoton(panelTablero, gbc, 7, 3, 2);
-        colocarBoton(panelTablero, gbc, 8, 4, 2);
-        colocarBoton(panelTablero, gbc, 9, 0, 3);
-        colocarBoton(panelTablero, gbc, 10, 1, 3);
-        colocarBoton(panelTablero, gbc, 11, 2, 3);
-        colocarBoton(panelTablero, gbc, 12, 4, 3);
-        colocarBoton(panelTablero, gbc, 13, 5, 3);
-        colocarBoton(panelTablero, gbc, 14, 6, 3);
-        colocarBoton(panelTablero, gbc, 15, 2, 4);
-        colocarBoton(panelTablero, gbc, 16, 3, 4);
+        colocarBoton(panelTablero, gbc, 7, 2, 3);
+        colocarBoton(panelTablero, gbc, 8, 2, 4);
+        colocarBoton(panelTablero, gbc, 9, 3, 0);
+        colocarBoton(panelTablero, gbc, 10, 3, 1);
+        colocarBoton(panelTablero, gbc, 11, 3, 2);
+        colocarBoton(panelTablero, gbc, 12, 3, 4);
+        colocarBoton(panelTablero, gbc, 13, 3, 5);
+        colocarBoton(panelTablero, gbc, 14, 3, 6);
+        colocarBoton(panelTablero, gbc, 15, 4, 2);
+        colocarBoton(panelTablero, gbc, 16, 4, 3);
         colocarBoton(panelTablero, gbc, 17, 4, 4);
-        colocarBoton(panelTablero, gbc, 18, 1, 5);
-        colocarBoton(panelTablero, gbc, 19, 3, 5);
+        colocarBoton(panelTablero, gbc, 18, 5, 1);
+        colocarBoton(panelTablero, gbc, 19, 5, 3);
         colocarBoton(panelTablero, gbc, 20, 5, 5);
-        colocarBoton(panelTablero, gbc, 21, 0, 6);
-        colocarBoton(panelTablero, gbc, 22, 3, 6);
+        colocarBoton(panelTablero, gbc, 21, 6, 0);
+        colocarBoton(panelTablero, gbc, 22, 6, 3);
         colocarBoton(panelTablero, gbc, 23, 6, 6);
 
         add(panelTablero, BorderLayout.CENTER);
