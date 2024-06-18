@@ -9,6 +9,7 @@ public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
     private ControladorGraficoMolino controlador;
     private List<JButton> botones;
     private JTextField cuadroTexto;
+    private JButton botonAnterior; // Referencia al botón previamente presionado
 
     public VistaGraficaMolino() {
         setTitle("Juego del Molino");
@@ -30,9 +31,14 @@ public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
             final int indice = i;
             boton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-
                     if (!controlador.hacerMovimiento(indice)) {
                         JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
+                    } else {
+                        if (botonAnterior != null) {
+                            botonAnterior.setBackground(null); // Restaurar el color original
+                        }
+                        boton.setBackground(Color.LIGHT_GRAY); // Cambiar color del botón actual
+                        botonAnterior = boton; // Actualizar la referencia del botón previo
                     }
                     cuadroTexto.setText(controlador.getFase());
                 }
