@@ -12,7 +12,7 @@ public class VistaGraficaMolino extends JFrame {
     private JButton botonAnterior; // Referencia al botón previamente presionado
     private Jugador j;
 
-    public VistaGraficaMolino(ControladorGraficoMolino controlador,Jugador jugador) {//REVISAR JUGADOR
+    public VistaGraficaMolino(ControladorGraficoMolino controlador, Jugador jugador) {
         c = controlador;
         c.setVista(this);
         c.setJugador(jugador);
@@ -31,14 +31,21 @@ public class VistaGraficaMolino extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
 
         // Añadir botones en las posiciones válidas
+        Dimension botonDimension = new Dimension(40, 40); // Tamaño de los botones
         for (int i = 0; i < 24; i++) {
             JButton boton = new JButton("-");
+            boton.setPreferredSize(botonDimension); // Establecer tamaño preferido
             final int indice = i;
             boton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (!controlador.hacerMovimiento(indice)) {
                         JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
                     } else {
+                        if(j != c.getJugadorActual()){
+                            panelTablero.setBackground(Color.DARK_GRAY);
+                        }else{
+                            panelTablero.setBackground(Color.red);
+                        }
                         if (botonAnterior != null) {
                             botonAnterior.setBackground(null); // Restaurar el color original
                         }
@@ -78,9 +85,10 @@ public class VistaGraficaMolino extends JFrame {
         colocarBoton(panelTablero, gbc, 23, 6, 6);
 
         // Añadir los paneles al JFrame
+
         add(panelTexto, BorderLayout.NORTH);
         add(panelTablero, BorderLayout.CENTER);
-        setSize(400, 400);
+        setSize(400, 400); // Aumentar el tamaño de la ventana
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
@@ -89,7 +97,6 @@ public class VistaGraficaMolino extends JFrame {
         gbc.gridy = y;
         panel.add(botones.get(indice), gbc);
     }
-
 
     public void actualizarVista(Object cambios) {
         ArrayList<Object> cambioslist = (ArrayList<Object>) cambios;
@@ -100,7 +107,7 @@ public class VistaGraficaMolino extends JFrame {
         if (c.isJuegoTerminado()) {
             JOptionPane.showMessageDialog(this, "¡Juego terminado!");
         } else {
-            setTitle("jugardor : " + j.getSimbolo()  + "Turno: "  + jactual.getSimbolo() + "\n" + faseActual);
+            setTitle("jugador : " + j.getSimbolo() + " Turno: " + jactual.getSimbolo() + "\n" + faseActual);
         }
     }
 

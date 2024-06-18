@@ -1,11 +1,14 @@
 public class ControladorGraficoMolino implements ObservadorMolino{
     private ModeloMolino modelo;
     private VistaGraficaMolino vistaGrafica;
+    private Jugador j;
 
     public ControladorGraficoMolino(ModeloMolino modelo) {
         this.modelo = modelo;
 
     }
+
+
 
     public boolean isJuegoTerminado() {
         return modelo.isJuegoTerminado();
@@ -16,7 +19,12 @@ public class ControladorGraficoMolino implements ObservadorMolino{
     }
 
     public void setJugador(Jugador jugador) {
+        this.j = jugador;
         modelo.setJugador(jugador);
+    }
+
+    public Jugador getJugadorActual() {
+        return modelo.getJugadorActual();
     }
 
     public String getFase() {
@@ -32,9 +40,12 @@ public class ControladorGraficoMolino implements ObservadorMolino{
     }
 
     public boolean hacerMovimiento(int indice) {
-        return modelo.hacerMovimiento(indice);
+            if(j == modelo.getJugadorActual()){
+                return modelo.hacerMovimiento(indice);
+            }else{
+                return false;
+            }
     }
-
 
     @Override
     public void actualizar(Object cambios) {

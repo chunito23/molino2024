@@ -204,7 +204,7 @@ public class ModeloMolino {
         return jugadorActual;
     }
 
-    public void setJugador(Jugador jugador) {
+    public void setJugador(Jugador jugador) { //siempre es el que agrego primero el que arranca
         if (jugador1 == null){
             jugador1 = jugador;
             jugadorActual = jugador1;
@@ -216,6 +216,7 @@ public class ModeloMolino {
 
     private void cambiarJugador() {
         jugadorActual = (jugadorActual == jugador1) ? jugador2 : jugador1;
+        cambios.set(2,jugadorActual);
     }
 
     public List<Celda> getCeldas() {
@@ -263,11 +264,13 @@ public class ModeloMolino {
             jugadorActual.disminuirFichasDisponibles();
             jugadorActual.aumentarFichasEnTablero();
             if (comprobarMolino(indice)) {
-                return Elimnar(indice);
+                faseActual = FaseJuego.ELIMINACION;
             } else if (jugador1.getFichasDisponibles() == 0 && jugador2.getFichasDisponibles() == 0) {
                 faseActual = FaseJuego.MOVIMIENTO;
-            };
-            cambiarJugador();
+                cambiarJugador();
+            }else{
+                cambiarJugador();
+            }
             notificarObservadores(cambios);
             return true;
         }
@@ -276,7 +279,11 @@ public class ModeloMolino {
 
     private boolean MoverFicha(int indice) {
         boolean retorno;
-        if(aux.getX() == -1){
+
+        if(aux.getX() == -1 ){
+            if(celdas.get(indice).estaVacia()){
+                return false;
+            }
             aux = new Celda(celdas.get(indice).getX(),celdas.get(indice).getY());
             aux.setVecinos(celdas.get(indice).getVecinos());
             aux.setValor(celdas.get(indice).getValor());
@@ -322,6 +329,7 @@ public class ModeloMolino {
                 cambiarJugador();
                 retorno = true;
             }else{
+                System.out.println("entro aca, nose porque");
                 retorno = false;
             }
             notificarObservadores(cambios);
