@@ -5,7 +5,7 @@ public class Jugador {
 
     public Jugador(char simbolo) {
         this.simbolo = simbolo;
-        this.fichasDisponibles = 9; // Número inicial de fichas disponibles
+        this.fichasDisponibles = 3; // Número inicial de fichas disponibles
         this.fichasEnTablero = 0;
     }
 

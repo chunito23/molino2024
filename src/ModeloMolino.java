@@ -1,3 +1,4 @@
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ public class ModeloMolino {
     private boolean juegoTerminado;
     private FaseJuego faseActual;
     private ArrayList<Object> cambios = new ArrayList<>();
-    private Celda celdaAux = new Celda(-1,-1);
+    private Celda aux = new Celda(-1,-1);
 
     public ModeloMolino() {
         celdas = new ArrayList<>();
@@ -252,7 +253,7 @@ public class ModeloMolino {
     }
 
     private boolean colocarFicha(int indice) {
-        if (jugadorActual.getFichasDisponibles() > 0 && jugadorActual.getSimbolo() != celdas.get(indice).getValor())
+        if (jugadorActual.getFichasDisponibles() > 0 && celdas.get(indice).estaVacia())
         {
             celdas.get(indice).setValor(jugadorActual.getSimbolo());
             jugadorActual.disminuirFichasDisponibles();
@@ -270,21 +271,27 @@ public class ModeloMolino {
     }
 
     private boolean MoverFicha(int indice) {
-        if(celdaAux.getX() == -1){
-            celdaAux = celdas.get(indice);
+        boolean retorno;
+        if(aux.getX() == -1){
+            aux = new Celda(celdas.get(indice).getX(),celdas.get(indice).getY());
+            aux.setVecinos(celdas.get(indice).getVecinos());
+            aux.setValor(celdas.get(indice).getValor());
             celdas.get(indice).setValor('-');
-        }else{
-            celdas.get(indice).setValor(celdaAux.getValor());
-            celdaAux.setX(-1);
+            retorno = true;
+        }else if(MovimientoValida(aux,celdas.get(indice))){
+            celdas.get(indice).setValor(aux.getValor());
+            aux.setX(-1);
             cambiarJugador();
+            notificarObservadores(cambios);
+            retorno = true;
+        }else{
+            retorno = false;
         }
-        notificarObservadores(cambios);
-        return true;
+        return retorno;
     }
 
     private boolean Elimnar(int indice) {
         boolean retorno;
-        System.out.println("entra");
             if (jugadorActual.getSimbolo() != celdas.get(indice).getValor() && '-' != celdas.get(indice).getValor()){
                 celdas.get(indice).setValor('-');
                 if (jugadorActual == jugador1)
@@ -327,5 +334,84 @@ public class ModeloMolino {
 
     public FaseJuego getFaseActual() {
         return faseActual;
+    }
+
+    public boolean MovimientoValida(Celda casillaInicio,Celda casillaObjetivo){
+        boolean vecino = false;
+        int numvecino = esVecino(casillaInicio,casillaObjetivo);
+        int mayor;
+        int menor;
+        System.out.println("entro " +numvecino  + " " + casillaObjetivo.estaVacia()+ "");
+        if (casillaObjetivo.estaVacia() && numvecino != -1){ //verificar qeu no puedas mover una vacia
+            System.out.println("vecinos");
+            System.out.println("x y i: " + casillaInicio.getX() + " " + casillaInicio.getY());
+            System.out.println("x y o: " + casillaObjetivo.getX() + " " + casillaObjetivo.getY());
+            System.out.println(esVecino(casillaInicio,casillaObjetivo));
+
+            if(numvecino < 2){
+                mayor = mayor(casillaInicio.getY(),casillaObjetivo.getY());
+                menor = menor(casillaInicio.getY(),casillaObjetivo.getY());
+                System.out.println("resta" + (mayor - menor));
+                if ((mayor - menor) == 3){
+                    vecino = true;
+                }else if((mayor - menor) == 2){
+                    vecino = true;
+                }else if((mayor - menor) == 1){
+                    vecino = true;
+                }else{
+                    vecino = false;
+                }
+            }else{
+                mayor = mayor(casillaInicio.getX(),casillaObjetivo.getX());
+                menor = menor(casillaInicio.getX(),casillaObjetivo.getX());
+                System.out.println("resta" + (mayor - menor));
+                if ((mayor - menor) == 3){
+                    vecino = true;
+                }else if((mayor - menor) == 2){
+                    vecino = true;
+                }else if((mayor - menor) == 1){
+                    vecino = true;
+                }else{
+                    vecino = false;
+                }
+            }
+
+        }else{
+            System.out.println("no son vecinos");
+        }
+
+        return vecino;
+    }
+
+    private int mayor(int a, int b){
+        if (a > b){
+            return a;
+        }else{
+            return b;
+        }
+    }
+
+    private int menor(int a, int b){
+        if (a < b){
+            return a;
+        }else{
+            return b;
+        }
+    }
+
+    private int esVecino(Celda casillaInicio,Celda casillaObjetivo){ //me da alrevez horinzontal y vertical
+        int vecino = -1;
+        int x1;
+        int y1;
+        int x2 = casillaObjetivo.getX();
+        int y2 = casillaObjetivo.getY();
+        for(int i = 0;i<4;i++){
+            x1 = casillaInicio.getVecinos().get(i).getX();
+            y1 = casillaInicio.getVecinos().get(i).getY();
+            if (x1 == x2 && y1 == y2){
+                vecino = i;
+            }
+        }
+        return vecino;
     }
 }

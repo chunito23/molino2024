@@ -35,6 +35,10 @@ public class Celda {
         return vecinos;
     }
 
+    public void setVecinos(List<Celda> v) {
+        this.vecinos = v;
+    }
+
     public int getX() {
         return x;
     }
