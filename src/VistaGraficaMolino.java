@@ -5,14 +5,19 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
-    private ControladorGraficoMolino controlador;
+public class VistaGraficaMolino extends JFrame {
+    private ControladorGraficoMolino c;
     private List<JButton> botones;
     private JTextField cuadroTexto;
     private JButton botonAnterior; // Referencia al botón previamente presionado
+    private Jugador j;
 
-    public VistaGraficaMolino() {
-        setTitle("Juego del Molino");
+    public VistaGraficaMolino(ControladorGraficoMolino controlador,Jugador jugador) {//REVISAR JUGADOR
+        c = controlador;
+        c.setVista(this);
+        c.setJugador(jugador);
+        j = jugador;
+        setTitle("Juego del Molino " + j.getSimbolo());
         setLayout(new BorderLayout());
 
         // Crear el panel para el cuadro de texto
@@ -85,21 +90,17 @@ public class VistaGraficaMolino extends JFrame implements ObservadorMolino {
         panel.add(botones.get(indice), gbc);
     }
 
-    public void setControlador(ControladorGraficoMolino controlador) {
-        this.controlador = controlador;
-    }
 
-    @Override
-    public void actualizar(Object cambios) {
+    public void actualizarVista(Object cambios) {
         ArrayList<Object> cambioslist = (ArrayList<Object>) cambios;
         ArrayList<Celda> celdas = (ArrayList<Celda>) cambioslist.get(0);
-        Jugador jactual = (Jugador) cambioslist.get(1);
-        FaseJuego faseActual = (FaseJuego) cambioslist.get(2);
+        Jugador jactual = (Jugador) cambioslist.get(2);
+        FaseJuego faseActual = (FaseJuego) cambioslist.get(1);
         actualizarTablero(celdas);//tablero
-        if (controlador.isJuegoTerminado()) {
+        if (c.isJuegoTerminado()) {
             JOptionPane.showMessageDialog(this, "¡Juego terminado!");
         } else {
-            setTitle("Turno del jugador " + jactual.getSimbolo() + "\n" + faseActual);
+            setTitle("jugardor : " + j.getSimbolo()  + "Turno: "  + jactual.getSimbolo() + "\n" + faseActual);
         }
     }
 

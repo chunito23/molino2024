@@ -2,13 +2,21 @@ public class ControladorGraficoMolino implements ObservadorMolino{
     private ModeloMolino modelo;
     private VistaGraficaMolino vistaGrafica;
 
-    public ControladorGraficoMolino(ModeloMolino modelo, VistaGraficaMolino vistaGrafica) {
+    public ControladorGraficoMolino(ModeloMolino modelo) {
         this.modelo = modelo;
-        this.vistaGrafica = vistaGrafica;
+
     }
 
     public boolean isJuegoTerminado() {
         return modelo.isJuegoTerminado();
+    }
+
+    public void setVista(VistaGraficaMolino v){
+        this.vistaGrafica = v;
+    }
+
+    public void setJugador(Jugador jugador) {
+        modelo.setJugador(jugador);
     }
 
     public String getFase() {
@@ -30,6 +38,8 @@ public class ControladorGraficoMolino implements ObservadorMolino{
 
     @Override
     public void actualizar(Object cambios) {
-
+        vistaGrafica.actualizarVista(cambios);
     }
+
+
 }

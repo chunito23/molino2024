@@ -4,6 +4,7 @@ import java.util.List;
 
 public class ModeloMolino {
     private List<Celda> celdas;
+    private List <Jugador> jugadores = new ArrayList<>();
     private Jugador jugador1;
     private Jugador jugador2;
     private Jugador jugadorActual;
@@ -15,9 +16,6 @@ public class ModeloMolino {
 
     public ModeloMolino() {
         celdas = new ArrayList<>();
-        jugador1 = new Jugador('*');
-        jugador2 = new Jugador('/');
-        jugadorActual = jugador1;
         observadores = new ArrayList<>();
         juegoTerminado = false;
         faseActual = FaseJuego.COLOCACION;
@@ -25,7 +23,6 @@ public class ModeloMolino {
         establecerVecinos();
         //estado inicial de la partida
         cambios.add(celdas);
-        cambios.add(jugadorActual);
         cambios.add(faseActual);
     }
 
@@ -207,11 +204,18 @@ public class ModeloMolino {
         return jugadorActual;
     }
 
+    public void setJugador(Jugador jugador) {
+        if (jugador1 == null){
+            jugador1 = jugador;
+            jugadorActual = jugador1;
+        }else{
+            jugador2 = jugador;
+            cambios.add(jugadorActual); //lo envia sin nada al principio
+        }
+    }
+
     private void cambiarJugador() {
         jugadorActual = (jugadorActual == jugador1) ? jugador2 : jugador1;
-        if (jugador1.getFichasDisponibles() == 0 && jugador2.getFichasDisponibles() == 0) {
-            faseActual = FaseJuego.MOVIMIENTO;
-        }
     }
 
     public List<Celda> getCeldas() {
@@ -259,11 +263,11 @@ public class ModeloMolino {
             jugadorActual.disminuirFichasDisponibles();
             jugadorActual.aumentarFichasEnTablero();
             if (comprobarMolino(indice)) {
-                faseActual = FaseJuego.ELIMINACION;
-            } else {
-                cambiarJugador();
+                return Elimnar(indice);
+            } else if (jugador1.getFichasDisponibles() == 0 && jugador2.getFichasDisponibles() == 0) {
+                faseActual = FaseJuego.MOVIMIENTO;
             };
-
+            cambiarJugador();
             notificarObservadores(cambios);
             return true;
         }
@@ -335,7 +339,9 @@ public class ModeloMolino {
                 ||
                 (celda.getVecinos().get(2).getValor() == jugadorActual.getSimbolo() &&
                 celda.getVecinos().get(3).getValor() == jugadorActual.getSimbolo())
-        ) molino = true;
+        ){
+            molino = true;
+        }
         return molino;
     }
 
@@ -408,4 +414,6 @@ public class ModeloMolino {
         }
         return vecino;
     }
+
+
 }
