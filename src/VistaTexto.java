@@ -47,14 +47,23 @@ public class VistaTexto extends JFrame {
         textArea.append("> " + command + "\n");
 
         if (command.startsWith("poner: ")) {
+
+                String numberString = command.substring(6).trim();
+                textArea.append(" substring: "+ numberString + "\n");
+                int numeroPoner = Integer.parseInt(numberString);
+                if (!c.hacerMovimiento(numeroPoner)){
+                    textArea.append("Movimiento invalido \n");
+                }
+        }else if(command.startsWith("mover: ")){
             try {
                 String numberString = command.substring(7).trim();
                 int numeroPoner = Integer.parseInt(numberString);
                 c.hacerMovimiento(numeroPoner);
             } catch (NumberFormatException e) {
-                textArea.append("Comando 'poner' inválido. Uso correcto: poner: (número)\n");
+                textArea.append("Comando 'mover' inválido. Uso correcto: poner: (número)\n");
             }
-        } else {
+        }
+        else {
             textArea.append("Comando '" + command + "' no reconocido.\n");
         }
     }
@@ -75,14 +84,15 @@ public class VistaTexto extends JFrame {
 
     private void actualizarTablero(List<Celda> celdas) {
         int k = 0;
-        textArea.setText(" ");
+        textArea.setText("");
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 7; j++) {
                 if(celdas.get(k).getX() == i && celdas.get(k).getY() == j){
-                    textArea.append(" "+ celdas.get(k).getValor() +" ");
-                    k++;
+                    //textArea.append(celdas.get(k).getX() + " " + celdas.get(k).getY() + " " + celdas.get(k).getValor());
+                    textArea.append(" " + celdas.get(k).getValor() + " ");
+                    k = k + 1;
                 }else{
-                    textArea.append(" - ");
+                    textArea.append(" --- ");
                 }
             }
             textArea.append("\n");

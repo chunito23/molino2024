@@ -30,7 +30,7 @@ public class Controlador implements ObservadorMolino {
     }
 
     public boolean hacerMovimiento(int indice) {
-        if (j == modelo.getJugadorActual()){
+        if (true){
             return modelo.hacerMovimiento(indice);
         }else{
             return false;
