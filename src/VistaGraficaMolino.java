@@ -5,14 +5,16 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 public class VistaGraficaMolino extends JFrame {
-    private ControladorGraficoMolino c;
+    private Controlador c;
     private List<JButton> botones;
     private JTextField cuadroTexto;
-    private JButton botonAnterior; // Referencia al botón previamente presionado
+    private JButton botonAnterior;
     private Jugador j;
 
-    public VistaGraficaMolino(ControladorGraficoMolino controlador, Jugador jugador) {
+    public VistaGraficaMolino(Controlador controlador, Jugador jugador) {
         c = controlador;
         c.setVista(this);
         c.setJugador(jugador);
@@ -20,76 +22,50 @@ public class VistaGraficaMolino extends JFrame {
         setTitle("Juego del Molino " + j.getSimbolo());
         setLayout(new BorderLayout());
 
-        // Crear el panel para el cuadro de texto
         JPanel panelTexto = new JPanel(new BorderLayout());
         cuadroTexto = new JTextField();
         panelTexto.add(cuadroTexto, BorderLayout.CENTER);
 
-        // Crear el panel principal con un GridBagLayout
         JPanel panelTablero = new JPanel(new GridBagLayout());
         botones = new ArrayList<>();
         GridBagConstraints gbc = new GridBagConstraints();
 
-        // Añadir botones en las posiciones válidas
-        Dimension botonDimension = new Dimension(40, 40); // Tamaño de los botones
+        Dimension botonDimension = new Dimension(40, 40);
         for (int i = 0; i < 24; i++) {
             JButton boton = new JButton("-");
-            boton.setPreferredSize(botonDimension); // Establecer tamaño preferido
+            boton.setPreferredSize(botonDimension);
             final int indice = i;
             boton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    if (!controlador.hacerMovimiento(indice)) {
+                    if (!c.hacerMovimiento(indice)) {
                         JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
                     } else {
-                        if(j != c.getJugadorActual()){
-                            panelTablero.setBackground(Color.DARK_GRAY);
-                        }else{
-                            panelTablero.setBackground(Color.red);
-                        }
-                        if (botonAnterior != null) {
-                            botonAnterior.setBackground(null); // Restaurar el color original
-                        }
-                        boton.setBackground(Color.LIGHT_GRAY); // Cambiar color del botón actual
-                        botonAnterior = boton; // Actualizar la referencia del botón previo
+                        actualizarBoton(boton);
                     }
-                    cuadroTexto.setText(controlador.getFase());
+                    cuadroTexto.setText(c.getFase());
                 }
             });
             botones.add(boton);
         }
 
-        // Colocar botones en las posiciones específicas
-        colocarBoton(panelTablero, gbc, 0, 0, 0);
-        colocarBoton(panelTablero, gbc, 1, 0, 3);
-        colocarBoton(panelTablero, gbc, 2, 0, 6);
-        colocarBoton(panelTablero, gbc, 3, 1, 1);
-        colocarBoton(panelTablero, gbc, 4, 1, 3);
-        colocarBoton(panelTablero, gbc, 5, 1, 5);
-        colocarBoton(panelTablero, gbc, 6, 2, 2);
-        colocarBoton(panelTablero, gbc, 7, 2, 3);
-        colocarBoton(panelTablero, gbc, 8, 2, 4);
-        colocarBoton(panelTablero, gbc, 9, 3, 0);
-        colocarBoton(panelTablero, gbc, 10, 3, 1);
-        colocarBoton(panelTablero, gbc, 11, 3, 2);
-        colocarBoton(panelTablero, gbc, 12, 3, 4);
-        colocarBoton(panelTablero, gbc, 13, 3, 5);
-        colocarBoton(panelTablero, gbc, 14, 3, 6);
-        colocarBoton(panelTablero, gbc, 15, 4, 2);
-        colocarBoton(panelTablero, gbc, 16, 4, 3);
-        colocarBoton(panelTablero, gbc, 17, 4, 4);
-        colocarBoton(panelTablero, gbc, 18, 5, 1);
-        colocarBoton(panelTablero, gbc, 19, 5, 3);
-        colocarBoton(panelTablero, gbc, 20, 5, 5);
-        colocarBoton(panelTablero, gbc, 21, 6, 0);
-        colocarBoton(panelTablero, gbc, 22, 6, 3);
-        colocarBoton(panelTablero, gbc, 23, 6, 6);
-
-        // Añadir los paneles al JFrame
+        colocarBotones(panelTablero, gbc);
 
         add(panelTexto, BorderLayout.NORTH);
         add(panelTablero, BorderLayout.CENTER);
-        setSize(400, 400); // Aumentar el tamaño de la ventana
+        setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    private void colocarBotones(JPanel panel, GridBagConstraints gbc) {
+        int[][] posiciones = {
+                {0, 0, 0}, {1, 0, 3}, {2, 0, 6}, {3, 1, 1}, {4, 1, 3}, {5, 1, 5},
+                {6, 2, 2}, {7, 2, 3}, {8, 2, 4}, {9, 3, 0}, {10, 3, 1}, {11, 3, 2},
+                {12, 3, 4}, {13, 3, 5}, {14, 3, 6}, {15, 4, 2}, {16, 4, 3}, {17, 4, 4},
+                {18, 5, 1}, {19, 5, 3}, {20, 5, 5}, {21, 6, 0}, {22, 6, 3}, {23, 6, 6}
+        };
+        for (int[] posicion : posiciones) {
+            colocarBoton(panel, gbc, posicion[0], posicion[1], posicion[2]);
+        }
     }
 
     private void colocarBoton(JPanel panel, GridBagConstraints gbc, int indice, int x, int y) {
@@ -98,16 +74,25 @@ public class VistaGraficaMolino extends JFrame {
         panel.add(botones.get(indice), gbc);
     }
 
+    private void actualizarBoton(JButton boton) {
+        if (botonAnterior != null) {
+            botonAnterior.setBackground(null);
+        }
+        boton.setBackground(Color.LIGHT_GRAY);
+        botonAnterior = boton;
+    }
+
     public void actualizarVista(Object cambios) {
-        ArrayList<Object> cambioslist = (ArrayList<Object>) cambios;
-        ArrayList<Celda> celdas = (ArrayList<Celda>) cambioslist.get(0);
-        Jugador jactual = (Jugador) cambioslist.get(2);
-        FaseJuego faseActual = (FaseJuego) cambioslist.get(1);
-        actualizarTablero(celdas);//tablero
-        if (c.isJuegoTerminado()) {
+        ArrayList<Object> cambiosList = (ArrayList<Object>) cambios;
+        List<Celda> celdas = (List<Celda>) cambiosList.get(0);
+        Jugador jugadorActual = (Jugador) cambiosList.get(2);
+        FaseJuego faseActual = (FaseJuego) cambiosList.get(1);
+        actualizarTablero(celdas);
+
+        if (c.JuegoTerminado()) {
             JOptionPane.showMessageDialog(this, "¡Juego terminado!");
         } else {
-            setTitle("jugador : " + j.getSimbolo() + " Turno: " + jactual.getSimbolo() + "\n" + faseActual);
+            setTitle("Jugador: " + j.getSimbolo() + " Turno: " + jugadorActual.getSimbolo() + "\n" + faseActual);
         }
     }
 

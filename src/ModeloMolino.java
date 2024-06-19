@@ -424,4 +424,7 @@ public class ModeloMolino {
     }
 
 
+    public Object GetCambios() {
+        return cambios;
+    }
 }
