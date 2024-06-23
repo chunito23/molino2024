@@ -11,16 +11,16 @@ public class AplicacionMolino {
         Controlador controladorGrafico2 = new Controlador(modelo);
 
         VistaGraficaMolino vistaGrafica = new VistaGraficaMolino(controladorGrafico,jugador1);
-        VistaTexto vt = new VistaTexto(controladorGrafico2,jugador2);
-        //VistaGraficaMolino vistaGrafica2 = new VistaGraficaMolino(controladorGrafico2,jugador2);
+        //VistaTexto vt = new VistaTexto(controladorGrafico2,jugador2);
+        VistaGraficaMolino vistaGrafica2 = new VistaGraficaMolino(controladorGrafico2,jugador2);
 
         modelo.agregarObservador(controladorGrafico);
         modelo.agregarObservador(controladorGrafico2);
 
         SwingUtilities.invokeLater(() -> {
             vistaGrafica.mostrar();
-           // vistaGrafica2.mostrar();
-            vt.setVisible(true);
+            vistaGrafica2.mostrar();
+            //vt.setVisible(true);
 
         });
     }

@@ -5,14 +5,18 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 public class VistaGraficaMolino extends JFrame {
     private Controlador c;
     private List<JButton> botones;
     private JTextField cuadroTexto;
     private JButton botonAnterior;
     private Jugador j;
+    private int[][] posiciones = {
+            {0, 0}, {0, 3}, {0, 6}, {1, 1}, {1, 3}, {1, 5},
+            {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
+            {3, 4}, {3, 5}, {3, 6}, {4, 2}, {4, 3}, {4, 4},
+            {5, 1}, {5, 3}, {5, 5}, {6, 0}, {6, 3}, {6, 6}
+    };
 
     public VistaGraficaMolino(Controlador controlador, Jugador jugador) {
         c = controlador;
@@ -26,29 +30,36 @@ public class VistaGraficaMolino extends JFrame {
         cuadroTexto = new JTextField();
         panelTexto.add(cuadroTexto, BorderLayout.CENTER);
 
-        JPanel panelTablero = new JPanel(new GridBagLayout());
+        JPanel panelTablero = new JPanel(new GridLayout(7, 7));
         botones = new ArrayList<>();
-        GridBagConstraints gbc = new GridBagConstraints();
 
         Dimension botonDimension = new Dimension(40, 40);
-        for (int i = 0; i < 24; i++) {
-            JButton boton = new JButton("-");
-            boton.setPreferredSize(botonDimension);
-            final int indice = i;
-            boton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    if (!c.hacerMovimiento(indice)) {
-                        JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
-                    } else {
-                        actualizarBoton(boton);
-                    }
-                    cuadroTexto.setText(c.getFase());
+        for (int i = 0; i < 7; i++) {
+            for (int j = 0; j < 7; j++) {
+                JButton boton = new JButton();
+                boton.setPreferredSize(botonDimension);
+                final int x = i;
+                final int y = j;
+                final int indice = getIndice(x, y);
+                if (indice != -1) {
+                    boton.setText( x + " " + y );
+                    boton.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            if (!c.hacerMovimiento(indice)) {
+                                JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
+                            } else {
+                                actualizarBoton(boton);
+                            }
+                            cuadroTexto.setText(c.getFase());
+                        }
+                    });
+                } else {
+                    boton.setEnabled(false);
                 }
-            });
-            botones.add(boton);
+                botones.add(boton);
+                panelTablero.add(boton);
+            }
         }
-
-        colocarBotones(panelTablero, gbc);
 
         add(panelTexto, BorderLayout.NORTH);
         add(panelTablero, BorderLayout.CENTER);
@@ -56,22 +67,21 @@ public class VistaGraficaMolino extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private void colocarBotones(JPanel panel, GridBagConstraints gbc) {
-        int[][] posiciones = {
-                {0, 0, 0}, {1, 0, 3}, {2, 0, 6}, {3, 1, 1}, {4, 1, 3}, {5, 1, 5},
-                {6, 2, 2}, {7, 2, 3}, {8, 2, 4}, {9, 3, 0}, {10, 3, 1}, {11, 3, 2},
-                {12, 3, 4}, {13, 3, 5}, {14, 3, 6}, {15, 4, 2}, {16, 4, 3}, {17, 4, 4},
-                {18, 5, 1}, {19, 5, 3}, {20, 5, 5}, {21, 6, 0}, {22, 6, 3}, {23, 6, 6}
-        };
-        for (int[] posicion : posiciones) {
-            colocarBoton(panel, gbc, posicion[0], posicion[1], posicion[2]);
+    private int getIndice(int x, int y) {
+        for (int i = 0; i < posiciones.length; i++) {
+            if (posiciones[i][0] == x && posiciones[i][1] == y) {
+                return i;
+            }
         }
+        return -1;
     }
 
-    private void colocarBoton(JPanel panel, GridBagConstraints gbc, int indice, int x, int y) {
-        gbc.gridx = x;
-        gbc.gridy = y;
-        panel.add(botones.get(indice), gbc);
+    private int[] getCoordenadas(int indice) {
+        if (indice >= 0 && indice < posiciones.length) {
+            return posiciones[indice];
+        } else {
+            return null; // Devolver null si el índice está fuera de rango
+        }
     }
 
     private void actualizarBoton(JButton boton) {
@@ -97,8 +107,24 @@ public class VistaGraficaMolino extends JFrame {
     }
 
     private void actualizarTablero(List<Celda> celdas) {
-        for (int i = 0; i < celdas.size(); i++) {
-            botones.get(i).setText(String.valueOf(celdas.get(i).getValor()));
+        Celda celda;
+        int x;
+        int y;
+        int botonIndex;
+        int contador = 0;
+        int siguiente = 0;
+        for (int i = 0; i < 7; i++) {
+            for(int j = 0; j < 7;j++){
+                celda = celdas.get(siguiente);
+                x = celda.getX();
+                y = celda.getY();
+                if (x == i && y == j){
+                    botones.get(contador).setText(String.valueOf(celda.getValor()));
+                    siguiente = siguiente + 1;
+                }
+                contador = contador + 1;
+            }
+
         }
     }
 

@@ -4,7 +4,7 @@ import java.util.List;
 
 public class ModeloMolino {
     private List<Celda> celdas;
-    private List <Jugador> jugadores = new ArrayList<>();
+    private List<Jugador> jugadores = new ArrayList<>();
     private Jugador jugador1;
     private Jugador jugador2;
     private Jugador jugadorActual;
@@ -12,7 +12,8 @@ public class ModeloMolino {
     private boolean juegoTerminado;
     private FaseJuego faseActual;
     private ArrayList<Object> cambios = new ArrayList<>();
-    private Celda aux = new Celda(-1,-1);
+    private Celda aux = new Celda(-1, -1);
+    private int Naux = -1;
 
     public ModeloMolino() {
         celdas = new ArrayList<>();
@@ -205,10 +206,10 @@ public class ModeloMolino {
     }
 
     public void setJugador(Jugador jugador) { //siempre es el que agrego primero el que arranca
-        if (jugador1 == null){
+        if (jugador1 == null) {
             jugador1 = jugador;
             jugadorActual = jugador1;
-        }else{
+        } else {
             jugador2 = jugador;
             cambios.add(jugadorActual); //lo envia sin nada al principio
         }
@@ -216,7 +217,7 @@ public class ModeloMolino {
 
     private void cambiarJugador() {
         jugadorActual = (jugadorActual == jugador1) ? jugador2 : jugador1;
-        cambios.set(2,jugadorActual);
+        cambios.set(2, jugadorActual);
     }
 
     public List<Celda> getCeldas() {
@@ -244,6 +245,7 @@ public class ModeloMolino {
     }
 
     public boolean hacerMovimiento(int indice) { //las celdas
+        System.out.println("hago movimiento");
         if (indice < 0 || indice >= 24 || juegoTerminado) {
             return false;
         }
@@ -258,8 +260,7 @@ public class ModeloMolino {
     }
 
     private boolean colocarFicha(int indice) {
-        if (jugadorActual.getFichasDisponibles() > 0 && celdas.get(indice).estaVacia())
-        {
+        if (jugadorActual.getFichasDisponibles() > 0 && celdas.get(indice).estaVacia()) {
             celdas.get(indice).setValor(jugadorActual.getSimbolo());
             jugadorActual.disminuirFichasDisponibles();
             jugadorActual.aumentarFichasEnTablero();
@@ -268,7 +269,7 @@ public class ModeloMolino {
             } else if (jugador1.getFichasDisponibles() == 0 && jugador2.getFichasDisponibles() == 0) {
                 faseActual = FaseJuego.MOVIMIENTO;
                 cambiarJugador();
-            }else{
+            } else {
                 cambiarJugador();
             }
             notificarObservadores(cambios);
@@ -278,39 +279,53 @@ public class ModeloMolino {
     }
 
     private boolean MoverFicha(int indice) {
-        boolean retorno;
+        if (aux.getX() == -1){
+            System.out.println("selecciono bien");
+            if (celdas.get(indice).estaVacia()){
+                return  false;
+            }else{
+                aux = new Celda(celdas.get(indice).getX(),celdas.get(indice).getY());
+                aux.setValor(celdas.get(indice).getValor());
+                aux.setVecinos(celdas.get(indice).getVecinos());
+                aux.setX(celdas.get(indice).getX());
+                aux.setY(celdas.get(indice).getY());
+                Naux = indice;
+                return true;
+            }
+        }else{
+            if (aux.getX() == celdas.get(indice).getX() && aux.getY() == celdas.get(indice).getY()){
+                aux.setX(-1);
+                System.out.println("entro a que son la misma casilla");
+                return true;
+            }
+            else if(aux.getValor() == celdas.get(indice).getValor()){
+                System.out.println("entro a que tiene el mismo valor");
+                return false;
+            }else if(MovimientoValida(aux,celdas.get(indice))){
+                System.out.println("entro a que son diferentes casillas");
+                celdas.get(Naux).setValor('-');
+                celdas.get(indice).setValor(jugadorActual.getSimbolo());
+                Naux = -1;
+                aux.setX(-1);
+                if(comprobarMolino(indice)){
+                    faseActual = FaseJuego.ELIMINACION;
+                }else{
+                    cambiarJugador();
+                }
+                notificarObservadores(cambios);
 
-        if(aux.getX() == -1 ){
-            if(celdas.get(indice).estaVacia()){
+            }else{
                 return false;
             }
-            aux = new Celda(celdas.get(indice).getX(),celdas.get(indice).getY());
-            aux.setVecinos(celdas.get(indice).getVecinos());
-            aux.setValor(celdas.get(indice).getValor());
-            celdas.get(indice).setValor('-');
-            retorno = true;
-        }else if(MovimientoValida(aux,celdas.get(indice))){
-            celdas.get(indice).setValor(aux.getValor());
-            aux.setX(-1);
-            if (comprobarMolino(indice)){
-                faseActual = FaseJuego.ELIMINACION;
-            }else{
-                cambiarJugador();
-            }
-            notificarObservadores(cambios);
-            retorno = true;
-        }else{
-            retorno = false;
+            return true;
         }
-        return retorno;
-    }
+}
 
     private boolean Elimnar(int indice) {
         boolean retorno;
             if (jugadorActual.getSimbolo() != celdas.get(indice).getValor() && '-' != celdas.get(indice).getValor())
                {
                 celdas.get(indice).setValor('-');
-                System.out.println("j1f j2f" + jugador1.getFichasEnTablero()+ " " +jugador2.getFichasEnTablero());
                 if (jugadorActual == jugador1)
                 {
                     jugador1.DisminuirFichasEnTablero(); //cambiar
@@ -329,7 +344,6 @@ public class ModeloMolino {
                 cambiarJugador();
                 retorno = true;
             }else{
-                System.out.println("entro aca, nose porque");
                 retorno = false;
             }
             notificarObservadores(cambios);
@@ -358,6 +372,9 @@ public class ModeloMolino {
     }
 
     public boolean MovimientoValida(Celda casillaInicio,Celda casillaObjetivo){
+        //if (casillaInicio.getX() == casillaObjetivo.getX() && casillaInicio.getY() == casillaObjetivo.getY()){
+        //    return true;
+        //} // por si elije el mismo
         boolean valido = false;
         int numvecino = esVecino(casillaInicio,casillaObjetivo);
         int mayor;
