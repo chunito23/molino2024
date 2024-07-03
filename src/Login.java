@@ -8,35 +8,59 @@ public class Login extends JFrame {
     private JComboBox<String> viewOptions;
     private ModeloMolino m;
 
-    // Lista de usuarios permitidos
-    private  String usuario;
-
     public Login(ModeloMolino m) {
         this.m = m;
         // Configuración del marco
         setTitle("Login");
-        setSize(300, 150);
+        setSize(300, 400);  // Ajuste del tamaño para dar espacio a la imagen y los componentes
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Creación del panel
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 2));
+        // Creación del panel con imagen de fondo
+        JPanel backgroundPanel = new BackgroundPanel("/molino.jpg");
+        backgroundPanel.setLayout(new BorderLayout());
+
+        // Creación del panel de componentes con BoxLayout
+        JPanel topPanel = new JPanel();
+        topPanel.setOpaque(false); // Hacer el panel transparente
+        topPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
 
         // Añadiendo componentes al panel
-        panel.add(new JLabel("Usuario:"));
-        userField = new JTextField();
-        panel.add(userField);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        topPanel.add(new JLabel("Usuario:"), gbc);
 
-        panel.add(new JLabel("Vista:"));
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        userField = new JTextField(10);
+        topPanel.add(userField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        topPanel.add(new JLabel("Vista:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.LINE_START;
         viewOptions = new JComboBox<>(new String[]{"Vista Gráfica", "Vista de Texto"});
-        panel.add(viewOptions);
+        topPanel.add(viewOptions, gbc);
 
+        // Panel para el botón de login
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setOpaque(false); // Hacer el panel transparente
+        bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         JButton loginButton = new JButton("Login");
-        panel.add(loginButton);
+        bottomPanel.add(loginButton);
 
-        // Añadiendo el panel al marco
-        add(panel);
+        // Añadiendo los paneles al backgroundPanel
+        backgroundPanel.add(topPanel, BorderLayout.NORTH);
+        backgroundPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        // Añadiendo el panel de fondo al marco
+        add(backgroundPanel);
 
         // Acción del botón de login
         loginButton.addActionListener(new ActionListener() {
@@ -46,10 +70,10 @@ public class Login extends JFrame {
                 String selectedView = (String) viewOptions.getSelectedItem();
                 Controlador c = new Controlador(m);
                 if ("Vista Gráfica".equals(selectedView)) {
-                    VistaGraficaMolino vg = new VistaGraficaMolino(c,new Jugador(username.charAt(0)));
+                    VistaGraficaMolino vg = new VistaGraficaMolino(c, new Jugador(username.charAt(0)));
                     vg.setVisible(true);
                 } else {
-                    VistaTexto vt = new VistaTexto(c,new Jugador(username.charAt(0)));
+                    VistaTexto vt = new VistaTexto(c, new Jugador(username.charAt(0)));
                     vt.setVisible(true);
                 }
                 m.agregarObservador(c);
@@ -58,30 +82,31 @@ public class Login extends JFrame {
         });
     }
 
-    private void showGraphicalView() {
-        JFrame graphicalFrame = new JFrame("Vista Gráfica");
-        graphicalFrame.setSize(400, 300);
-        graphicalFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        graphicalFrame.setLocationRelativeTo(null);
+    // Clase personalizada para el panel con fondo de imagen
+    class BackgroundPanel extends JPanel {
+        private Image backgroundImage;
 
-        // Aquí puedes añadir componentes gráficos a la ventana
-        graphicalFrame.add(new JLabel("Bienvenido a la Vista Gráfica"), BorderLayout.CENTER);
+        public BackgroundPanel(String fileName) {
+            try {
+                backgroundImage = new ImageIcon(getClass().getResource(fileName)).getImage();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
-        graphicalFrame.setVisible(true);
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        }
     }
 
-    private void showTextView() {
-        JFrame textFrame = new JFrame("Vista de Texto");
-        textFrame.setSize(400, 300);
-        textFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        textFrame.setLocationRelativeTo(null);
-
-        // Aquí puedes añadir componentes de texto a la ventana
-        JTextArea textArea = new JTextArea("Bienvenido a la Vista de Texto");
-        textArea.setEditable(false);
-        textFrame.add(textArea, BorderLayout.CENTER);
-
-        textFrame.setVisible(true);
+    public static void main(String[] args) {
+        // Supongamos que ModeloMolino es una clase existente
+        ModeloMolino modelo = new ModeloMolino();
+        Login login = new Login(modelo);
+        login.setVisible(true);
     }
-
 }

@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class VistaTexto extends JFrame {
     private JTextArea textArea;
     private JTextField textField;
@@ -31,6 +30,7 @@ public class VistaTexto extends JFrame {
 
         textArea = new JTextArea();
         textArea.setEditable(false);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 32)); // Cambia el tamaño de la fuente aquí
         JScrollPane scrollPane = new JScrollPane(textArea);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -45,93 +45,99 @@ public class VistaTexto extends JFrame {
                 textField.setText("");
             }
         });
+
+        // Inicializa el tablero con el estado actual
         ArrayList<Object> cambiosList = (ArrayList<Object>) c.getCambios();
-        actualizarTablero((java.util.List<Celda>) cambiosList.get(0));
+        actualizarTablero((List<Celda>) cambiosList.get(0));
     }
 
     private void processCommand(String command) {
         textArea.append("> " + command + "\n");
 
         if (command.startsWith("poner: ")) {
-            String numbersString = command.substring(6).trim();
-            textArea.append(" substring: " + numbersString + "\n");
-
-            String[] numbers = numbersString.split("\\s+");
-
-            if (numbers.length == 2) {
-                try {
-                    int numero1 = Integer.parseInt(numbers[0]);
-                    int numero2 = Integer.parseInt(numbers[1]);
-
-                    textArea.append("Número 1: " + numero1 + ", Número 2: " + numero2 + "\n");
-
-                    // Aquí puedes usar los números como necesites, por ejemplo:
-                    if (!c.hacerMovimiento(getIndice(numero1, numero2))) {
-                        textArea.append("poner invalido \n");
-                    }
-                } catch (NumberFormatException e) {
-                    textArea.append("Error: ambos valores deben ser números enteros.\n");
-                }
-            } else {
-                textArea.append("Comando 'poner' inválido. Uso correcto: poner: (número1) (número2)\n");
-            }
+            handlePonerCommand(command.substring(7).trim());
         } else if (command.startsWith("mover: ")) {
-            String numbersString = command.substring(7).trim();
-            textArea.append(" substring: " + numbersString + "\n");
-
-            String[] numbers = numbersString.split("\\s+");
-
-            if (numbers.length == 4) {
-                try {
-                    int numero1 = Integer.parseInt(numbers[0]);
-                    int numero2 = Integer.parseInt(numbers[1]);
-                    int numero3 = Integer.parseInt(numbers[2]);
-                    int numero4 = Integer.parseInt(numbers[3]);
-
-                    textArea.append("Número 1: " + numero1 + ", Número 2: " + numero2 + ", Número 3: " + numero3 + ", Número 4: " + numero4 + "\n");
-
-                    if (c.hacerMovimiento(getIndice(numero1, numero2))) {
-                        if (c.hacerMovimiento(getIndice(numero3, numero4))){
-                            textArea.append("se logro");
-                        }else{
-                            c.hacerMovimiento(getIndice(numero1, numero2));
-                            textArea.append("casilla invalida 2");
-                        }
-                    }else{
-                        textArea.append("casilla invalida");
-                    }
-                } catch (NumberFormatException e) {
-                    textArea.append("Error: todos los valores deben ser números enteros.\n");
-                }
-            } else {
-                textArea.append("Comando 'mover' inválido. Uso correcto: mover: (número1) (número2) (número3) (número4)\n");
-            }
-        }else if (command.startsWith("eliminar: ")) {
-            String numbersString = command.substring(9).trim();
-            textArea.append(" substring: " + numbersString + "\n");
-
-            String[] numbers = numbersString.split("\\s+");
-
-            if (numbers.length == 2) {
-                try {
-                    int numero1 = Integer.parseInt(numbers[0]);
-                    int numero2 = Integer.parseInt(numbers[1]);
-
-                    if (!c.hacerMovimiento(getIndice(numero1, numero2))) {
-                        textArea.append("eliminar invalido \n");
-                    }
-
-                } catch (NumberFormatException e) {
-                    textArea.append("Error: ambos valores deben ser números enteros.\n");
-                }
-            } else {
-                textArea.append("Comando 'eliminar' inválido. Uso correcto: eliminar: (número1) (número2)\n");
-            }
+            handleMoverCommand(command.substring(7).trim());
+        } else if (command.startsWith("eliminar: ")) {
+            handleEliminarCommand(command.substring(10).trim());
         } else {
             textArea.append("Comando '" + command + "' no reconocido.\n");
         }
     }
 
+    private void handlePonerCommand(String input) {
+        String[] numbers = input.split("\\s+");
+
+        if (numbers.length != 2) {
+            textArea.append("Comando 'poner' inválido. Uso correcto: poner: (número1) (número2)\n");
+            return;
+        }
+
+        try {
+            int x = Integer.parseInt(numbers[0]);
+            int y = Integer.parseInt(numbers[1]);
+            int indice = getIndice(x, y);
+
+            if (indice == -1 || !c.hacerMovimiento(indice)) {
+                textArea.append("Error: Movimiento inválido. Asegúrate de que las coordenadas sean válidas.\n");
+            }
+        } catch (NumberFormatException e) {
+            textArea.append("Error: ambos valores deben ser números enteros.\n");
+        }
+    }
+
+    private void handleMoverCommand(String input) {
+        String[] numbers = input.split("\\s+");
+
+        if (numbers.length != 4) {
+            textArea.append("Comando 'mover' inválido. Uso correcto: mover: (número1) (número2) (número3) (número4)\n");
+            return;
+        }
+
+        try {
+            int x1 = Integer.parseInt(numbers[0]);
+            int y1 = Integer.parseInt(numbers[1]);
+            int x2 = Integer.parseInt(numbers[2]);
+            int y2 = Integer.parseInt(numbers[3]);
+            int indice1 = getIndice(x1, y1);
+            int indice2 = getIndice(x2, y2);
+
+            if (indice1 == -1 || indice2 == -1) {
+                textArea.append("Error: Coordenadas inválidas. Asegúrate de que las coordenadas sean válidas.\n");
+                return;
+            }
+
+            if (!c.hacerMovimiento(indice1) || !c.hacerMovimiento(indice2)) {
+                c.hacerMovimiento(indice1); // Deshacer el primer movimiento si el segundo falla
+                textArea.append("Error: Movimiento inválido. Asegúrate de que las coordenadas sean válidas y que la casilla de destino esté libre.\n");
+            } else {
+                textArea.append("Movimiento exitoso.\n");
+            }
+        } catch (NumberFormatException e) {
+            textArea.append("Error: todos los valores deben ser números enteros.\n");
+        }
+    }
+
+    private void handleEliminarCommand(String input) {
+        String[] numbers = input.split("\\s+");
+
+        if (numbers.length != 2) {
+            textArea.append("Comando 'eliminar' inválido. Uso correcto: eliminar: (número1) (número2)\n");
+            return;
+        }
+
+        try {
+            int x = Integer.parseInt(numbers[0]);
+            int y = Integer.parseInt(numbers[1]);
+            int indice = getIndice(x, y);
+
+            if (indice == -1 || !c.hacerMovimiento(indice)) {
+                textArea.append("Error: Movimiento inválido. Asegúrate de que las coordenadas sean válidas.\n");
+            }
+        } catch (NumberFormatException e) {
+            textArea.append("Error: ambos valores deben ser números enteros.\n");
+        }
+    }
 
     private int getIndice(int x, int y) {
         for (int i = 0; i < posiciones.length; i++) {
@@ -144,7 +150,7 @@ public class VistaTexto extends JFrame {
 
     public void actualizarVista(Object cambios) {
         ArrayList<Object> cambiosList = (ArrayList<Object>) cambios;
-        java.util.List<Celda> celdas = (java.util.List<Celda>) cambiosList.get(0);
+        List<Celda> celdas = (List<Celda>) cambiosList.get(0);
         Jugador jugadorActual = (Jugador) cambiosList.get(2);
         FaseJuego faseActual = (FaseJuego) cambiosList.get(1);
         actualizarTablero(celdas);
@@ -161,16 +167,24 @@ public class VistaTexto extends JFrame {
         textArea.setText("");
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 7; j++) {
-                if (celdas.get(k).getX() == i && celdas.get(k).getY() == j) {
-                    //textArea.append(celdas.get(k).getX() + " " + celdas.get(k).getY() + " " + celdas.get(k).getValor());
-                    textArea.append(" " + celdas.get(k).getValor() + " ");
-                    k = k + 1;
+                if (k < celdas.size() && celdas.get(k).getX() == i && celdas.get(k).getY() == j) {
+                    if (celdas.get(k).getValor() == '-') {
+                        textArea.append(" . ");
+                    } else {
+                        textArea.append(" " + celdas.get(k).getValor() + " ");
+                    }
+                    k++;
                 } else {
-                    textArea.append(" --- ");
+                    if ((i == 1 || i == 2 || i == 4 || i == 5) && (j == 1 || j == 5 || j == 0 || j == 6)) {
+                        textArea.append(" | ");
+                    } else {
+                        textArea.append(" - ");
+                    }
                 }
             }
             textArea.append("\n");
         }
-
     }
+
+
 }

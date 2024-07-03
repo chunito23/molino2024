@@ -9,8 +9,7 @@ public class VistaGraficaMolino extends JFrame {
     private Controlador c;
     private List<JButton> botones;
     private JTextField cuadroTexto;
-    private JButton botonAnterior;
-    private Jugador j;
+    private Jugador jugador;
     private int[][] posiciones = {
             {0, 0}, {0, 3}, {0, 6}, {1, 1}, {1, 3}, {1, 5},
             {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
@@ -22,48 +21,58 @@ public class VistaGraficaMolino extends JFrame {
         c = controlador;
         c.setVista(this);
         c.setJugador(jugador);
-        j = jugador;
-        setTitle("Juego del Molino " + j.getSimbolo());
+        this.jugador = jugador;
+        setTitle("Juego del Molino " + this.jugador.getSimbolo());
         setLayout(new BorderLayout());
 
         JPanel panelTexto = new JPanel(new BorderLayout());
         cuadroTexto = new JTextField();
+        cuadroTexto.setEditable(false);
         panelTexto.add(cuadroTexto, BorderLayout.CENTER);
 
         JPanel panelTablero = new JPanel(new GridLayout(7, 7));
         botones = new ArrayList<>();
 
-        Dimension botonDimension = new Dimension(40, 40);
+        Dimension botonDimension = new Dimension(50, 50);
+        cuadroTexto.setText(c.getFase() + " turno: " + c.getJugadorActual().getSimbolo());
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 7; j++) {
                 JButton boton = new JButton();
                 boton.setPreferredSize(botonDimension);
+                boton.setMargin(new Insets(0, 0, 0, 0));
+                boton.setFont(new Font("Arial", Font.BOLD, 20));
+                boton.setFocusPainted(false);
+                boton.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
                 final int x = i;
                 final int y = j;
                 final int indice = getIndice(x, y);
                 if (indice != -1) {
-                    boton.setText( x + " " + y );
+                    boton.setBackground(Color.WHITE);
                     boton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             if (!c.hacerMovimiento(indice)) {
                                 JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
-                            } else {
-                                actualizarBoton(boton);
                             }
-                            cuadroTexto.setText(c.getFase());
+
                         }
                     });
                 } else {
                     boton.setEnabled(false);
+                    boton.setBackground(Color.LIGHT_GRAY);
                 }
                 botones.add(boton);
                 panelTablero.add(boton);
             }
         }
+        if (c.getJugadorActual().equals(jugador)){
+            botones.get(24).setBackground(Color.green);
+        }else{
+            botones.get(24).setBackground(Color.red);
+        }
 
         add(panelTexto, BorderLayout.NORTH);
         add(panelTablero, BorderLayout.CENTER);
-        setSize(400, 400);
+        setSize(450, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
@@ -76,21 +85,6 @@ public class VistaGraficaMolino extends JFrame {
         return -1;
     }
 
-    private int[] getCoordenadas(int indice) {
-        if (indice >= 0 && indice < posiciones.length) {
-            return posiciones[indice];
-        } else {
-            return null; // Devolver null si el índice está fuera de rango
-        }
-    }
-
-    private void actualizarBoton(JButton boton) {
-        if (botonAnterior != null) {
-            botonAnterior.setBackground(null);
-        }
-        boton.setBackground(Color.LIGHT_GRAY);
-        botonAnterior = boton;
-    }
 
     public void actualizarVista(Object cambios) {
         ArrayList<Object> cambiosList = (ArrayList<Object>) cambios;
@@ -98,34 +92,47 @@ public class VistaGraficaMolino extends JFrame {
         Jugador jugadorActual = (Jugador) cambiosList.get(2);
         FaseJuego faseActual = (FaseJuego) cambiosList.get(1);
         actualizarTablero(celdas);
-
+        cuadroTexto.setText(c.getFase() + " turno: " + c.getJugadorActual().getSimbolo());
         if (c.JuegoTerminado()) {
             JOptionPane.showMessageDialog(this, "¡Juego terminado!");
         } else {
-            setTitle("Jugador: " + j.getSimbolo() + " Turno: " + jugadorActual.getSimbolo() + "\n" + faseActual);
+            setTitle("Jugador: " + jugador.getSimbolo() + " Turno: " + jugadorActual.getSimbolo() + "\n" + faseActual);
         }
     }
 
     private void actualizarTablero(List<Celda> celdas) {
         Celda celda;
+
         int x;
         int y;
-        int botonIndex;
         int contador = 0;
         int siguiente = 0;
         for (int i = 0; i < 7; i++) {
-            for(int j = 0; j < 7;j++){
-                celda = celdas.get(siguiente);
-                x = celda.getX();
-                y = celda.getY();
-                if (x == i && y == j){
-                    botones.get(contador).setText(String.valueOf(celda.getValor()));
-                    siguiente = siguiente + 1;
+            for (int j = 0; j < 7; j++) {
+                if (siguiente < celdas.size()) {
+                    celda = celdas.get(siguiente);
+                    x = celda.getX();
+                    y = celda.getY();
+                    if (x == i && y == j) {
+                        JButton boton = botones.get(contador);
+                        if (celda.getValor() == '-') {
+                            boton.setText("");
+                            boton.setBackground(Color.WHITE);
+                        } else {
+                            boton.setText(String.valueOf(celda.getValor()));
+                        }
+                        siguiente++;
+                    }
                 }
-                contador = contador + 1;
+                contador++;
             }
-
         }
+        if (c.getJugadorActual().equals(jugador)){
+            botones.get(24).setBackground(Color.green);
+        }else{
+            botones.get(24).setBackground(Color.red);
+        }
+
     }
 
     public void mostrar() {

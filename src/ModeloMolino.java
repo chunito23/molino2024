@@ -238,14 +238,12 @@ public class ModeloMolino {
     }
 
     public void notificarObservadores(Object cambios) {
-        System.out.println(faseActual + " " + jugadorActual.getSimbolo());
         for (ObservadorMolino observador : observadores) {
             observador.actualizar(cambios);
         }
     }
 
     public boolean hacerMovimiento(int indice) { //las celdas
-        System.out.println("hago movimiento");
         if (indice < 0 || indice >= 24 || juegoTerminado) {
             return false;
         }
@@ -280,8 +278,7 @@ public class ModeloMolino {
 
     private boolean MoverFicha(int indice) {
         if (aux.getX() == -1){
-            System.out.println("selecciono bien");
-            if (celdas.get(indice).estaVacia()){
+            if (celdas.get(indice).estaVacia() || celdas.get(indice).getValor() != jugadorActual.getSimbolo()){
                 return  false;
             }else{
                 aux = new Celda(celdas.get(indice).getX(),celdas.get(indice).getY());
@@ -295,14 +292,11 @@ public class ModeloMolino {
         }else{
             if (aux.getX() == celdas.get(indice).getX() && aux.getY() == celdas.get(indice).getY()){
                 aux.setX(-1);
-                System.out.println("entro a que son la misma casilla");
                 return true;
             }
             else if(aux.getValor() == celdas.get(indice).getValor()){
-                System.out.println("entro a que tiene el mismo valor");
                 return false;
             }else if(MovimientoValida(aux,celdas.get(indice))){
-                System.out.println("entro a que son diferentes casillas");
                 celdas.get(Naux).setValor('-');
                 celdas.get(indice).setValor(jugadorActual.getSimbolo());
                 Naux = -1;
@@ -372,9 +366,6 @@ public class ModeloMolino {
     }
 
     public boolean MovimientoValida(Celda casillaInicio,Celda casillaObjetivo){
-        //if (casillaInicio.getX() == casillaObjetivo.getX() && casillaInicio.getY() == casillaObjetivo.getY()){
-        //    return true;
-        //} // por si elije el mismo
         boolean valido = false;
         int numvecino = esVecino(casillaInicio,casillaObjetivo);
         int mayor;
