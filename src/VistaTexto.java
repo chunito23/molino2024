@@ -2,14 +2,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VistaTexto extends JFrame {
+public class VistaTexto extends JFrame implements Ivista{
     private JTextArea textArea;
     private JTextField textField;
-    private Jugador j;
-    private Controlador c;
+    private Controlador controlador;
     private int[][] posiciones = {
             {0, 0}, {0, 3}, {0, 6}, {1, 1}, {1, 3}, {1, 5},
             {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
@@ -17,12 +17,8 @@ public class VistaTexto extends JFrame {
             {5, 1}, {5, 3}, {5, 5}, {6, 0}, {6, 3}, {6, 6}
     };
 
-    public VistaTexto(Controlador controlador, Jugador jugador) {
-        c = controlador;
-        c.setJugador(jugador);
-        c.setVistaTexto(this);
-        j = jugador;
-
+    public VistaTexto(Controlador c) throws RemoteException {
+        this.controlador = c;
         setTitle("Terminal Básica");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,7 +74,7 @@ public class VistaTexto extends JFrame {
             int y = Integer.parseInt(numbers[1]);
             int indice = getIndice(x, y);
 
-            if (indice == -1 || !c.hacerMovimiento(indice)) {
+            if (indice == -1 || !controlador.hacerMovimiento(indice)) {
                 textArea.append("Error: Movimiento inválido. Asegúrate de que las coordenadas sean válidas.\n");
             }
         } catch (NumberFormatException e) {
@@ -107,8 +103,8 @@ public class VistaTexto extends JFrame {
                 return;
             }
 
-            if (!c.hacerMovimiento(indice1) || !c.hacerMovimiento(indice2)) {
-                c.hacerMovimiento(indice1); // Deshacer el primer movimiento si el segundo falla
+            if (!controlador.hacerMovimiento(indice1) || !controlador.hacerMovimiento(indice2)) {
+                controlador.hacerMovimiento(indice1); // Deshacer el primer movimiento si el segundo falla
                 textArea.append("Error: Movimiento inválido. Asegúrate de que las coordenadas sean válidas y que la casilla de destino esté libre.\n");
             } else {
                 textArea.append("Movimiento exitoso.\n");
@@ -131,7 +127,7 @@ public class VistaTexto extends JFrame {
             int y = Integer.parseInt(numbers[1]);
             int indice = getIndice(x, y);
 
-            if (indice == -1 || !c.hacerMovimiento(indice)) {
+            if (indice == -1 || !controlador.hacerMovimiento(indice)) {
                 textArea.append("Error: Movimiento inválido. Asegúrate de que las coordenadas sean válidas.\n");
             }
         } catch (NumberFormatException e) {
@@ -148,17 +144,17 @@ public class VistaTexto extends JFrame {
         return -1;
     }
 
-    public void actualizarVista(Object cambios) {
+    public void actualizarVista(Object cambios) throws RemoteException {
         ArrayList<Object> cambiosList = (ArrayList<Object>) cambios;
         List<Celda> celdas = (List<Celda>) cambiosList.get(0);
         Jugador jugadorActual = (Jugador) cambiosList.get(2);
         FaseJuego faseActual = (FaseJuego) cambiosList.get(1);
         actualizarTablero(celdas);
 
-        if (c.JuegoTerminado()) {
+        if (controlador.JuegoTerminado()) {
             JOptionPane.showMessageDialog(this, "¡Juego terminado!");
         } else {
-            setTitle("Jugador: " + j.getSimbolo() + " Turno: " + jugadorActual.getSimbolo() + "\n" + faseActual);
+            setTitle("Jugador: " + jugadorActual.getSimbolo() + " Turno: " + jugadorActual.getSimbolo() + "\n" + faseActual);
         }
     }
 
@@ -184,6 +180,10 @@ public class VistaTexto extends JFrame {
             }
             textArea.append("\n");
         }
+    }
+
+    public void mostrar() {
+        setVisible(true);
     }
 
 

@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Tablero {
+public class Tablero implements Serializable {
     private  List<Celda> celdas;
     private  boolean juegoTerminado;
     private  FaseJuego faseActual;
@@ -21,7 +22,6 @@ public class Tablero {
     public  boolean getjuegoTerminado() {
         return juegoTerminado;
     }
-
 
     public FaseJuego getFaseActual() {
         return faseActual;
@@ -205,7 +205,6 @@ public class Tablero {
         return celdas;
     }
 
-
     public  boolean colocarFicha(int indice, Jugador actual, Jugador noActual) {
         if (actual.getFichasDisponibles() > 0 && celdas.get(indice).estaVacia()) {
             celdas.get(indice).setValor(actual.getSimbolo());
@@ -221,10 +220,10 @@ public class Tablero {
         return false;
     }
 
-    public  boolean MoverFicha(int indice, Jugador actual) {
+    public int MoverFicha(int indice, Jugador actual) {
         if (aux.getX() == -1){
             if (celdas.get(indice).estaVacia() || celdas.get(indice).getValor() != actual.getSimbolo()){
-                return  false;
+                return  0;
             }else{
                 aux = new Celda(celdas.get(indice).getX(),celdas.get(indice).getY());
                 aux.setValor(celdas.get(indice).getValor());
@@ -232,15 +231,15 @@ public class Tablero {
                 aux.setX(celdas.get(indice).getX());
                 aux.setY(celdas.get(indice).getY());
                 Naux = indice;
-                return true;
+                return 1;
             }
         }else{
             if (aux.getX() == celdas.get(indice).getX() && aux.getY() == celdas.get(indice).getY()){
-                //aux.setX(-1);
-                return false;
+                aux.setX(-1);
+                return 2;
             }
             else if(aux.getValor() == celdas.get(indice).getValor()){
-                return false;
+                return 0;
             }else if(MovimientoValida(aux,celdas.get(indice))){
                 celdas.get(Naux).setValor('-');
                 celdas.get(indice).setValor(actual.getSimbolo());
@@ -249,11 +248,10 @@ public class Tablero {
                 if(comprobarMolino(indice,actual)){
                     faseActual = FaseJuego.ELIMINACION;
                 }
-
             }else{
-                return false;
+                return 0;
             }
-            return true;
+            return 1;
         }
     }
 
@@ -263,7 +261,6 @@ public class Tablero {
         {
             celdas.get(indice).setValor('-');
             noActual.DisminuirFichasEnTablero(); //cambiar
-
             if(actual.getFichasEnTablero() == 0 || noActual.getFichasEnTablero() == 0 ) {
                 juegoTerminado = true;
             }else if(actual.getFichasDisponibles() == 0 && noActual.getFichasDisponibles() == 0 )
@@ -276,9 +273,7 @@ public class Tablero {
         }else{
             retorno = false;
         }
-
         return retorno;
-
     }
 
     private  boolean comprobarMolino(int indice, Jugador actual) {
@@ -324,10 +319,7 @@ public class Tablero {
                     valido = true;
                 }
             }
-        }else{
-            valido = false;
         }
-
         return valido;
     }
 
@@ -353,7 +345,7 @@ public class Tablero {
         int y1;
         int x2 = casillaObjetivo.getX();
         int y2 = casillaObjetivo.getY();
-        for(int i = 0;i<4;i++){//cambiar
+        for(int i = 0;i<casillaInicio.getVecinos().size();i++){//cambiar
             x1 = casillaInicio.getVecinos().get(i).getX();
             y1 = casillaInicio.getVecinos().get(i).getY();
             if (x1 == x2 && y1 == y2){

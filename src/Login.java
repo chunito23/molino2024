@@ -1,15 +1,21 @@
+import ar.edu.unlu.rmimvc.RMIMVCException;
+import ar.edu.unlu.rmimvc.cliente.Cliente;
+import ar.edu.unlu.rmimvc.cliente.IControladorRemoto;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 
 public class Login extends JFrame {
     private JTextField userField;
     private JComboBox<String> viewOptions;
-    private ModeloMolino m;
+    private Controlador controlador;
 
-    public Login(ModeloMolino m) {
-        this.m = m;
+    public Login(Cliente c) {
+        this.controlador = new Controlador();
+        System.out.println("me estoy ejecutando");
         // Configuración del marco
         setTitle("Login");
         setSize(300, 400);  // Ajuste del tamaño para dar espacio a la imagen y los componentes
@@ -66,18 +72,33 @@ public class Login extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = userField.getText();
-                String selectedView = (String) viewOptions.getSelectedItem();
-                Controlador c = new Controlador(m);
-                if ("Vista Gráfica".equals(selectedView)) {
-                    VistaGraficaMolino vg = new VistaGraficaMolino(c, new Jugador(username.charAt(0)));
-                    vg.setVisible(true);
-                } else {
-                    VistaTexto vt = new VistaTexto(c, new Jugador(username.charAt(0)));
-                    vt.setVisible(true);
+                try {
+                    c.iniciar(controlador);
+                    System.out.println("inicie el controlador");
+                } catch (RemoteException excepcion) {
+                    // TODO Auto-generated catch block
+                    excepcion.printStackTrace();
+                } catch (RMIMVCException excepcion) {
+                    // TODO Auto-generated catch block
+                    excepcion.printStackTrace();
                 }
-                m.agregarObservador(c);
-                dispose();
+                try {
+                    String username = userField.getText();
+                    String selectedView = (String) viewOptions.getSelectedItem();
+                    Jugador nj = new Jugador(username.charAt(0));
+                    controlador.setJugador(nj);
+                    Ivista vista;
+                    if ("Vista Gráfica".equals(selectedView)) {
+                        vista = new VistaGraficaMolino(controlador);
+                    } else {
+                        vista = new VistaTexto(controlador);
+                    }
+                    controlador.setVista(vista);
+                    vista.mostrar();
+                    dispose();
+                } catch (RemoteException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
     }
@@ -103,10 +124,11 @@ public class Login extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        // Supongamos que ModeloMolino es una clase existente
-        ModeloMolino modelo = new ModeloMolino();
-        Login login = new Login(modelo);
-        login.setVisible(true);
+    public IControladorRemoto getC() {
+        return controlador;
+    }
+
+    public void lmostrar(){
+        this.setVisible(true);
     }
 }

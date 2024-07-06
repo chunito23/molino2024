@@ -2,14 +2,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VistaGraficaMolino extends JFrame {
+public class VistaGraficaMolino extends JFrame implements Ivista{
     private Controlador c;
     private List<JButton> botones;
     private JTextField cuadroTexto;
-    private Jugador jugador;
     private int[][] posiciones = {
             {0, 0}, {0, 3}, {0, 6}, {1, 1}, {1, 3}, {1, 5},
             {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
@@ -17,12 +17,9 @@ public class VistaGraficaMolino extends JFrame {
             {5, 1}, {5, 3}, {5, 5}, {6, 0}, {6, 3}, {6, 6}
     };
 
-    public VistaGraficaMolino(Controlador controlador, Jugador jugador) {
-        c = controlador;
-        c.setVista(this);
-        c.setJugador(jugador);
-        this.jugador = jugador;
-        setTitle("Juego del Molino " + this.jugador.getSimbolo());
+    public VistaGraficaMolino(Controlador c) throws RemoteException {
+        this.c = c;
+        setTitle("Juego del Molino " + this.c.getJugador().getSimbolo());
         setLayout(new BorderLayout());
 
         JPanel panelTexto = new JPanel(new BorderLayout());
@@ -50,6 +47,11 @@ public class VistaGraficaMolino extends JFrame {
                     boton.setBackground(Color.WHITE);
                     boton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
+                            try {
+                                System.out.println(c.getJugador() + " " + c.getJugadorActual());
+                            } catch (RemoteException ex) {
+                                throw new RuntimeException(ex);
+                            }
                             if (!c.hacerMovimiento(indice)) {
                                 JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
                             }
@@ -64,7 +66,8 @@ public class VistaGraficaMolino extends JFrame {
                 panelTablero.add(boton);
             }
         }
-        if (c.getJugadorActual().equals(jugador)){
+        System.out.println("para pintar los botones: " + c.getJugadorActual() + " " + c.getJugador());
+        if (c.getJugadorActual().getSimbolo() == c.getJugador().getSimbolo()){
             botones.get(24).setBackground(Color.green);
         }else{
             botones.get(24).setBackground(Color.red);
@@ -86,23 +89,22 @@ public class VistaGraficaMolino extends JFrame {
     }
 
 
-    public void actualizarVista(Object cambios) {
+    public void actualizarVista(Object cambios) throws RemoteException {
         ArrayList<Object> cambiosList = (ArrayList<Object>) cambios;
         List<Celda> celdas = (List<Celda>) cambiosList.get(0);
-        Jugador jugadorActual = (Jugador) cambiosList.get(2);
         FaseJuego faseActual = (FaseJuego) cambiosList.get(1);
+        Jugador jugadorActual = (Jugador) cambiosList.get(2);
         actualizarTablero(celdas);
         cuadroTexto.setText(c.getFase() + " turno: " + c.getJugadorActual().getSimbolo());
         if (c.JuegoTerminado()) {
             JOptionPane.showMessageDialog(this, "¡Juego terminado!");
         } else {
-            setTitle("Jugador: " + jugador.getSimbolo() + " Turno: " + jugadorActual.getSimbolo() + "\n" + faseActual);
+            setTitle("Jugador: " + jugadorActual.getSimbolo() + " Turno: " + jugadorActual.getSimbolo() + "\n" + faseActual);
         }
     }
 
-    private void actualizarTablero(List<Celda> celdas) {
+    public void actualizarTablero(List<Celda> celdas) throws RemoteException {
         Celda celda;
-
         int x;
         int y;
         int contador = 0;
@@ -127,7 +129,8 @@ public class VistaGraficaMolino extends JFrame {
                 contador++;
             }
         }
-        if (c.getJugadorActual().equals(jugador)){
+        System.out.println("para pintar los botones: " + c.getJugadorActual() + " " + c.getJugador());
+        if (c.getJugadorActual().getSimbolo() == c.getJugador().getSimbolo()){
             botones.get(24).setBackground(Color.green);
         }else{
             botones.get(24).setBackground(Color.red);

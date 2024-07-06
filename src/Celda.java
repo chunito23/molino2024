@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Celda {
+public class Celda implements Serializable {
     private char valor;
     private List<Celda> vecinos; // 0,1 vecinos horizontales 2,3 vecinos verticalres
     private int x;

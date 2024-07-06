@@ -1,57 +1,74 @@
-public class Controlador implements ObservadorMolino {
-    private ModeloMolino modelo;
-    private VistaGraficaMolino vista;
-    private VistaTexto vistaTexto;
+import ar.edu.unlu.rmimvc.cliente.IControladorRemoto;
+import ar.edu.unlu.rmimvc.observer.IObservableRemoto;
+
+import java.rmi.RemoteException;
+
+public class Controlador implements IControladorRemoto {
+    private IModeloMolino modelo;
+    private Ivista vista;
     private Jugador j;
 
-    public Controlador(ModeloMolino modelo) {
-        this.modelo = modelo;
+    public Controlador() {
+
     }
 
-    public boolean JuegoTerminado() {
+    public void setVista(Ivista vista)  throws RemoteException{
+        this.vista = vista;
+    }
+
+    public boolean JuegoTerminado() throws RemoteException {
         return modelo.isJuegoTerminado();
     }
 
-    public void setVista(VistaGraficaMolino v) {
-        this.vista = v;
+    public void setJugador(Jugador jugador) throws RemoteException {
+        try {
+            this.j = jugador;
+            modelo.setJugador(jugador);
+            System.out.println(modelo.getJugadorActual());
+        }catch (RemoteException e){
+            e.printStackTrace();
+            System.out.println("falle agregando jugador");
+        }
+
     }
 
-    public void setVistaTexto(VistaTexto v) {
-        this.vistaTexto = v;
+    public Jugador getJugador()  throws RemoteException{
+        return j;
     }
 
-    public void setJugador(Jugador jugador) {
-        this.j = jugador;
-        modelo.setJugador(jugador);
-    }
-
-    public Jugador getJugadorActual() {
+    public Jugador getJugadorActual() throws RemoteException {
         return modelo.getJugadorActual();
     }
 
     public boolean hacerMovimiento(int indice) {
-        if (j == modelo.getJugadorActual()){
-            return modelo.hacerMovimiento(indice);
-        }else {
-            return false;
+        boolean valor = false;
+        try {
+            System.out.println(j.getSimbolo() + " " + modelo.getJugadorActual().getSimbolo());
+            if (j.getSimbolo() == modelo.getJugadorActual().getSimbolo()){
+                valor = modelo.hacerMovimiento(indice);
+            }
+        }catch (RemoteException e){
+            e.printStackTrace();
         }
+        return valor;
     }
 
-    public String getFase() {
+    public String getFase() throws RemoteException {
         return modelo.getFaseActual().name();
     }
 
-    public Object getCambios(){
+    public Object getCambios() throws RemoteException {
         return modelo.GetCambios();
     }
 
+
     @Override
-    public void actualizar(Object cambios) {
-        if (vista != null) {
-            vista.actualizarVista(cambios);
-        }
-        if (vistaTexto != null) {
-            vistaTexto.actualizarVista(cambios);
-        }
+    public <T extends IObservableRemoto> void setModeloRemoto(T modeloRemoto) throws RemoteException {
+        this.modelo  = (IModeloMolino) modeloRemoto;
+    }
+
+    @Override
+    public void actualizar(IObservableRemoto modelo, Object cambios) throws RemoteException {
+        vista.actualizarVista(cambios);
     }
 }
