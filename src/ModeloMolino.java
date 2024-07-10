@@ -66,7 +66,7 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
     public boolean hacerMovimiento(int indice) throws RemoteException { //las celdas
         boolean valor = false;
         int sucesoMoviento = 0;
-        if (indice < 0 || indice >= 24 || tablero.getjuegoTerminado()) {
+        if (indice < 0 || indice >= 24 || tablero.getFaseActual() == FaseJuego.FIN) {
             return valor;
         }
         if (tablero.getFaseActual() == FaseJuego.COLOCACION) {
@@ -94,7 +94,12 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
             if(valor){
                 cambiarJugador();
             }
+            if(tablero.getFaseActual() == FaseJuego.FIN){
+                cambiarJugador();
+            }
         }
+        cambios.set(1,tablero.getFaseActual());
+
         notificarObservadores(cambios);
         return valor;
     }
@@ -107,7 +112,4 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
         return cambios;
     }
 
-    public boolean isJuegoTerminado() throws RemoteException{
-        return tablero.getjuegoTerminado();
-    }
 }

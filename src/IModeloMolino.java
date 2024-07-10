@@ -16,5 +16,4 @@ public interface IModeloMolino extends IObservableRemoto {
 
     Object GetCambios() throws RemoteException;
 
-    boolean isJuegoTerminado() throws RemoteException;
 }

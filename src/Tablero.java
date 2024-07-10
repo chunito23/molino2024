@@ -4,7 +4,6 @@ import java.util.List;
 
 public class Tablero implements Serializable {
     private  List<Celda> celdas;
-    private  boolean juegoTerminado;
     private  FaseJuego faseActual;
     private  Celda aux = new Celda(-1, -1);
     private  int Naux = -1;
@@ -14,14 +13,9 @@ public class Tablero implements Serializable {
         celdas = new ArrayList<>();
         inicializarCeldas();
         establecerVecinos();
-        juegoTerminado = false;
         faseActual = FaseJuego.COLOCACION;
     }
 
-
-    public  boolean getjuegoTerminado() {
-        return juegoTerminado;
-    }
 
     public FaseJuego getFaseActual() {
         return faseActual;
@@ -261,8 +255,8 @@ public class Tablero implements Serializable {
         {
             celdas.get(indice).setValor('-');
             noActual.DisminuirFichasEnTablero(); //cambiar
-            if(actual.getFichasEnTablero() == 0 || noActual.getFichasEnTablero() == 0 ) {
-                juegoTerminado = true;
+            if(actual.getFichasEnTablero() == 0 || noActual.getFichasEnTablero() == 0) {
+                faseActual = FaseJuego.FIN;
             }else if(actual.getFichasDisponibles() == 0 && noActual.getFichasDisponibles() == 0 )
             {
                 faseActual = FaseJuego.MOVIMIENTO;

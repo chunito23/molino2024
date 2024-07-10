@@ -16,18 +16,13 @@ public class Controlador implements IControladorRemoto {
         this.vista = vista;
     }
 
-    public boolean JuegoTerminado() throws RemoteException {
-        return modelo.isJuegoTerminado();
-    }
 
     public void setJugador(Jugador jugador) throws RemoteException {
         try {
             this.j = jugador;
             modelo.setJugador(jugador);
-            System.out.println(modelo.getJugadorActual());
         }catch (RemoteException e){
             e.printStackTrace();
-            System.out.println("falle agregando jugador");
         }
 
     }
@@ -43,7 +38,6 @@ public class Controlador implements IControladorRemoto {
     public boolean hacerMovimiento(int indice) {
         boolean valor = false;
         try {
-            System.out.println(j.getSimbolo() + " " + modelo.getJugadorActual().getSimbolo());
             if (j.getSimbolo() == modelo.getJugadorActual().getSimbolo()){
                 valor = modelo.hacerMovimiento(indice);
             }

@@ -151,7 +151,7 @@ public class VistaTexto extends JFrame implements Ivista{
         FaseJuego faseActual = (FaseJuego) cambiosList.get(1);
         actualizarTablero(celdas);
 
-        if (controlador.JuegoTerminado()) {
+        if (faseActual == FaseJuego.FIN) {
             JOptionPane.showMessageDialog(this, "¡Juego terminado!");
         } else {
             setTitle("Jugador: " + jugadorActual.getSimbolo() + " Turno: " + jugadorActual.getSimbolo() + "\n" + faseActual);

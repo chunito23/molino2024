@@ -19,7 +19,7 @@ public class VistaGraficaMolino extends JFrame implements Ivista{
 
     public VistaGraficaMolino(Controlador c) throws RemoteException {
         this.c = c;
-        setTitle("Juego del Molino " + this.c.getJugador().getSimbolo());
+        setTitle("jugador " + this.c.getJugador().getSimbolo());
         setLayout(new BorderLayout());
 
         JPanel panelTexto = new JPanel(new BorderLayout());
@@ -47,11 +47,6 @@ public class VistaGraficaMolino extends JFrame implements Ivista{
                     boton.setBackground(Color.WHITE);
                     boton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
-                            try {
-                                System.out.println(c.getJugador() + " " + c.getJugadorActual());
-                            } catch (RemoteException ex) {
-                                throw new RuntimeException(ex);
-                            }
                             if (!c.hacerMovimiento(indice)) {
                                 JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
                             }
@@ -66,7 +61,6 @@ public class VistaGraficaMolino extends JFrame implements Ivista{
                 panelTablero.add(boton);
             }
         }
-        System.out.println("para pintar los botones: " + c.getJugadorActual() + " " + c.getJugador());
         if (c.getJugadorActual().getSimbolo() == c.getJugador().getSimbolo()){
             botones.get(24).setBackground(Color.green);
         }else{
@@ -95,12 +89,14 @@ public class VistaGraficaMolino extends JFrame implements Ivista{
         FaseJuego faseActual = (FaseJuego) cambiosList.get(1);
         Jugador jugadorActual = (Jugador) cambiosList.get(2);
         actualizarTablero(celdas);
-        cuadroTexto.setText(c.getFase() + " turno: " + c.getJugadorActual().getSimbolo());
-        if (c.JuegoTerminado()) {
-            JOptionPane.showMessageDialog(this, "¡Juego terminado!");
-        } else {
-            setTitle("Jugador: " + jugadorActual.getSimbolo() + " Turno: " + jugadorActual.getSimbolo() + "\n" + faseActual);
+        if (faseActual == FaseJuego.FIN) {
+            cuadroTexto.setText("juego terminador ganador: " + c.getJugadorActual().getSimbolo());
+            setTitle("Jugador: " + c.getJugador().getSimbolo());
+        }else{
+            cuadroTexto.setText(c.getFase() + " turno: " + c.getJugadorActual().getSimbolo());
+            setTitle("Jugador: " + c.getJugador().getSimbolo());
         }
+
     }
 
     public void actualizarTablero(List<Celda> celdas) throws RemoteException {
@@ -129,7 +125,6 @@ public class VistaGraficaMolino extends JFrame implements Ivista{
                 contador++;
             }
         }
-        System.out.println("para pintar los botones: " + c.getJugadorActual() + " " + c.getJugador());
         if (c.getJugadorActual().getSimbolo() == c.getJugador().getSimbolo()){
             botones.get(24).setBackground(Color.green);
         }else{
