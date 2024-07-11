@@ -34,7 +34,7 @@ public class AppCliente {
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 null,
-                null
+                "127.0.0.1"
         );
         String portServidor = (String) JOptionPane.showInputDialog(
                 null,

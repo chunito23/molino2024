@@ -3,19 +3,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Tablero implements Serializable {
-    private  List<Celda> celdas;
+    private  ArrayList<Celda> celdas;
     private  FaseJuego faseActual;
     private  Celda aux = new Celda(-1, -1);
     private  int Naux = -1;
+    private  int idTablero;
 
 
-    public Tablero() {
+    public Tablero(int idTablero) {
+        this.idTablero = idTablero;
         celdas = new ArrayList<>();
         inicializarCeldas();
         establecerVecinos();
         faseActual = FaseJuego.COLOCACION;
     }
 
+    public int getIdTablero() {
+        return idTablero;
+    }
 
     public FaseJuego getFaseActual() {
         return faseActual;
@@ -195,7 +200,7 @@ public class Tablero implements Serializable {
         celdas.get(23).agregarVecino(celdas.get(14));
     }
 
-    public  Object getCeldas() {
+    public ArrayList<Celda> getCeldas() {
         return celdas;
     }
 

@@ -6,13 +6,13 @@ import java.util.ArrayList;
 
 public interface IModeloMolino extends IObservableRemoto {
 
-    Jugador getJugadorActual() throws RemoteException;
-
     void setJugador(Jugador jugador) throws RemoteException;
 
-    boolean hacerMovimiento(int indice) throws RemoteException;
+    Jugador getJugadorActual(int idTablero) throws RemoteException;
 
-    FaseJuego getFaseActual() throws RemoteException;
+    boolean hacerMovimiento(int indice, Jugador jugador) throws RemoteException;
+
+    FaseJuego getFaseActual(int idTablero) throws RemoteException;
 
     Object GetCambios() throws RemoteException;
 

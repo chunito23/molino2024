@@ -4,6 +4,9 @@ public class Jugador implements Serializable {
     private char simbolo;
     private int fichasDisponibles;
     private int fichasEnTablero;
+    private boolean activo;
+    private int ganadas;
+    private int idTablero;
 
     public Jugador(char simbolo) {
         this.simbolo = simbolo;
@@ -15,6 +18,29 @@ public class Jugador implements Serializable {
         return simbolo;
     }
 
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
+    public int getGanadas() {
+        return ganadas;
+    }
+
+    public void setGanadas(int ganadas) {
+        this.ganadas = ganadas;
+    }
+
+    public int getIdTablero() {
+        return idTablero;
+    }
+
+    public void setIdTablero(int idTablero) {
+        this.idTablero = idTablero;
+    }
 
     public int getFichasDisponibles() {
         return fichasDisponibles;
@@ -36,5 +62,17 @@ public class Jugador implements Serializable {
 
     public void DisminuirFichasEnTablero() {
         fichasEnTablero--;
+    }
+
+    public void setSimbolo(char simbolo) {
+        this.simbolo = simbolo;
+    }
+
+    public void setFichasDisponibles(int fichasDisponibles) {
+        this.fichasDisponibles = fichasDisponibles;
+    }
+
+    public void setFichasEnTablero(int fichasEnTablero) {
+        this.fichasEnTablero = fichasEnTablero;
     }
 }

@@ -1,19 +1,14 @@
 import ar.edu.unlu.rmimvc.observer.ObservableRemoto;
 
-import javax.swing.*;
 import java.rmi.RemoteException;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
-    private Jugador jugador1;
-    private Jugador jugador2;
-    private Jugador jugadorActual;
-    private Jugador noActual;
-    private Tablero tablero;
+    private ArrayList<Jugador> jugadores;
+    private ArrayList<Tablero> tableros;
+    private static ArrayList<cambio> cambios;
+    private static int idtableros;
     private int contador;
-    private ArrayList<Object> cambios = new ArrayList<>(); //celdas,fase,jugadorActual
     private static ModeloMolino instacia;
 
     public static ModeloMolino getinstacia(){
@@ -24,64 +19,91 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
     }
 
     private ModeloMolino() {
-        tablero = new Tablero();
+        tableros = new ArrayList<Tablero>();
+        jugadores = new ArrayList<Jugador>();
+        cambios = new ArrayList<cambio>();
         contador = 0;
-        cambios.add(tablero.getCeldas());
-        cambios.add(FaseJuego.COLOCACION);
+        idtableros = 0;
     }
-
-    public Jugador getJugadorActual() throws RemoteException{
-        return jugadorActual;
-    }
-
-    private void cambiarJugador() {
-        if (jugadorActual == jugador1){
-            jugadorActual = jugador2;
-            noActual = jugador1;
-        }else{
-            jugadorActual = jugador1;
-            noActual = jugador2;
-        }
-        cambios.set(2, jugadorActual);
-    }
-
 
     public void setJugador(Jugador jugador) throws RemoteException{ //siempre es el que agrego primero el que arranca
-        if (jugador1 == null) {
-            jugador1 = jugador;
-            jugadorActual = jugador1;
-            noActual = jugador2;
-        } else {
-            jugador2 = jugador;
-            cambios.add(jugadorActual); //lo envia sin nada al principio
+        if (jugadores.size() % 2 == 0){
+            iniciarTablero(jugador);
+        }else{
+            unirJugadorTablero(jugador);
+        }
+        jugadores.add(jugador);
+    }
+
+    public void iniciarTablero(Jugador j1){
+        tableros.add(new Tablero(idtableros));//idt 1
+        j1.setIdTablero(idtableros);
+        cambios.add(new cambio(FaseJuego.COLOCACION, (ArrayList<Celda>) new Tablero(-99).getCeldas(),j1));
+        cambios.get(idtableros).setAux(j1); //jugador actual el primero que se coencta
+    }
+
+    public void unirJugadorTablero(Jugador j2){
+        j2.setIdTablero(idtableros);
+        cambios.get(idtableros).setJna(j2);
+        idtableros++;
+    }
+
+
+    public static void intercambiarJugadores(int idcambio) {
+        cambio c = cambios.get(idcambio);
+        if(c.getAux().getSimbolo() == c.getJa().getSimbolo()){
+            c.setAux(c.getJna());
+        }else{
+            c.setAux(c.getJa());
         }
     }
 
-    private void setCambios(ArrayList<Object> cambios) {
-        this.cambios = cambios;
+    public Jugador getJugadorActual(int idt) throws RemoteException{
+        return cambios.get(idt).getAux();
     }
 
 
+    private Tablero conseguirTablero(Jugador jugador){
+        for (int i = 0;i<tableros.size();i++){
+           if (jugador.getIdTablero() == tableros.get(i).getIdTablero()){
+               return tableros.get(i);
+           }
+        }
+        return null;
+    }
 
-    public boolean hacerMovimiento(int indice) throws RemoteException { //las celdas
+    public boolean hacerMovimiento(int indice,Jugador jugador) throws RemoteException { //las celdas
         boolean valor = false;
         int sucesoMoviento = 0;
-        if (indice < 0 || indice >= 24 || tablero.getFaseActual() == FaseJuego.FIN) {
+        Tablero tableroPartida = conseguirTablero(jugador);
+        FaseJuego faseActual = cambios.get(tableroPartida.getIdTablero()).getFj();
+        Jugador j1 = cambios.get(tableroPartida.getIdTablero()).getJa();
+        Jugador j2 = cambios.get(tableroPartida.getIdTablero()).getJna();
+        Jugador actual = cambios.get(tableroPartida.getIdTablero()).getAux();
+        Jugador noactual;
+        if (actual == j1){
+            noactual = j2;
+        }else{
+            noactual = j1;
+        }
+
+        System.out.println(faseActual + " " + j1.getSimbolo() + " " + j2.getSimbolo() + " " + actual.getSimbolo());
+        if (indice < 0 || indice >= 24 || faseActual == FaseJuego.FIN) {
             return valor;
         }
-        if (tablero.getFaseActual() == FaseJuego.COLOCACION) {
-            valor = tablero.colocarFicha(indice, jugadorActual, noActual);
-            if (tablero.getFaseActual() != FaseJuego.ELIMINACION && valor) {
-                cambiarJugador();
+        if (faseActual == FaseJuego.COLOCACION) {
+            valor = tableroPartida.colocarFicha(indice, actual, noactual);
+            if (tableroPartida.getFaseActual() != FaseJuego.ELIMINACION && valor) {
+                intercambiarJugadores(tableroPartida.getIdTablero());
             }
-        } else if (tablero.getFaseActual() == FaseJuego.MOVIMIENTO) {
-            sucesoMoviento = tablero.MoverFicha(indice, jugadorActual);
+        } else if (faseActual == FaseJuego.MOVIMIENTO) {
+            sucesoMoviento = tableroPartida.MoverFicha(indice, actual);
             valor = true;
             if (contador == 0 && 1 == sucesoMoviento) {
                 contador += 1;
             } else if (1 == sucesoMoviento) {
-                if (tablero.getFaseActual() != FaseJuego.ELIMINACION) {
-                    cambiarJugador();
+                if (tableroPartida.getFaseActual() != FaseJuego.ELIMINACION) {
+                    intercambiarJugadores(tableroPartida.getIdTablero());
                 }
                 contador = 0;
             } else if (2 == sucesoMoviento) {
@@ -89,23 +111,26 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
             }else{
                 valor = false;
             }
-        } else if (tablero.getFaseActual() == FaseJuego.ELIMINACION) {
-            valor = tablero.Eliminar(indice,jugadorActual,noActual);
+        } else if (faseActual == FaseJuego.ELIMINACION) {
+            System.out.println("entre a eliminar: " + j1 + " " +j2);
+            valor = tableroPartida.Eliminar(indice,actual,noactual);
             if(valor){
-                cambiarJugador();
+                intercambiarJugadores(tableroPartida.getIdTablero());
             }
-            if(tablero.getFaseActual() == FaseJuego.FIN){
-                cambiarJugador();
+            if(tableroPartida.getFaseActual() == FaseJuego.FIN){
+                intercambiarJugadores(tableroPartida.getIdTablero());
             }
         }
-        cambios.set(1,tablero.getFaseActual());
 
-        notificarObservadores(cambios);
+        cambios.get(tableroPartida.getIdTablero()).setCeldas(tableroPartida.getCeldas());
+        cambios.get(tableroPartida.getIdTablero()).setFj(tableroPartida.getFaseActual());
+
+        notificarObservadores(cambios.get(idtableros-1));
         return valor;
     }
 
-    public FaseJuego getFaseActual() throws RemoteException{
-        return tablero.getFaseActual();
+    public FaseJuego getFaseActual(int idt) throws RemoteException{
+        return tableros.get(idt).getFaseActual();
     }
 
     public Object GetCambios() throws RemoteException{

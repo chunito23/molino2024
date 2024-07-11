@@ -84,16 +84,16 @@ public class VistaGraficaMolino extends JFrame implements Ivista{
 
 
     public void actualizarVista(Object cambios) throws RemoteException {
-        ArrayList<Object> cambiosList = (ArrayList<Object>) cambios;
-        List<Celda> celdas = (List<Celda>) cambiosList.get(0);
-        FaseJuego faseActual = (FaseJuego) cambiosList.get(1);
-        Jugador jugadorActual = (Jugador) cambiosList.get(2);
+        cambio cambiosList = (cambio) cambios;
+        List<Celda> celdas =  cambiosList.getCeldas();
+        FaseJuego faseActual = cambiosList.getFj();
+        Jugador jugadorActual = cambiosList.getJa();
         actualizarTablero(celdas);
         if (faseActual == FaseJuego.FIN) {
-            cuadroTexto.setText("juego terminador ganador: " + c.getJugadorActual().getSimbolo());
+            cuadroTexto.setText("juego terminador ganador: " + jugadorActual.getSimbolo());
             setTitle("Jugador: " + c.getJugador().getSimbolo());
         }else{
-            cuadroTexto.setText(c.getFase() + " turno: " + c.getJugadorActual().getSimbolo());
+            cuadroTexto.setText(c.getFase() + " turno: " + jugadorActual.getSimbolo());
             setTitle("Jugador: " + c.getJugador().getSimbolo());
         }
 

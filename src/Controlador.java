@@ -32,23 +32,24 @@ public class Controlador implements IControladorRemoto {
     }
 
     public Jugador getJugadorActual() throws RemoteException {
-        return modelo.getJugadorActual();
+        return modelo.getJugadorActual(j.getIdTablero());
     }
 
     public boolean hacerMovimiento(int indice) {
         boolean valor = false;
         try {
-            if (j.getSimbolo() == modelo.getJugadorActual().getSimbolo()){
-                valor = modelo.hacerMovimiento(indice);
+            if (j.getSimbolo() == modelo.getJugadorActual(j.getIdTablero()).getSimbolo()){
+                valor = modelo.hacerMovimiento(indice,j);
             }
         }catch (RemoteException e){
             e.printStackTrace();
+            System.out.println("fallo al hacer movimiento");
         }
         return valor;
     }
 
     public String getFase() throws RemoteException {
-        return modelo.getFaseActual().name();
+        return modelo.getFaseActual(j.getIdTablero()).toString();
     }
 
     public Object getCambios() throws RemoteException {
