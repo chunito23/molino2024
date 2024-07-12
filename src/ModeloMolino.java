@@ -27,7 +27,7 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
     }
 
     public void setJugador(Jugador jugador) throws RemoteException{ //siempre es el que agrego primero el que arranca
-        if (jugadores.size() % 2 == 0){
+        if(jugadores.size() % 2 == 0){
             iniciarTablero(jugador);
         }else{
             unirJugadorTablero(jugador);
@@ -35,7 +35,18 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
         jugadores.add(jugador);
     }
 
+    public Jugador getJugador(Jugador jugador) throws RemoteException {
+        for (Jugador j : jugadores) {
+            if (j.getSimbolo() == jugador.getSimbolo()) {
+                return j;
+            }
+        }
+        return null;
+    }
+
+
     public void iniciarTablero(Jugador j1){
+        System.out.println("id tableros al iniciar al agregar al jugador: " + idtableros);
         tableros.add(new Tablero(idtableros));//idt 1
         j1.setIdTablero(idtableros);
         cambios.add(new cambio(FaseJuego.COLOCACION, (ArrayList<Celda>) new Tablero(-99).getCeldas(),j1));
@@ -48,6 +59,10 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
         idtableros++;
     }
 
+    public Tablero getTablero(int tableroid){
+        return tableros.get(tableroid);
+    }
+
 
     public static void intercambiarJugadores(int idcambio) {
         cambio c = cambios.get(idcambio);
@@ -58,10 +73,9 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
         }
     }
 
-    public Jugador getJugadorActual(int idt) throws RemoteException{
-        return cambios.get(idt).getAux();
+    public Jugador getJugadorActual(Jugador j) throws RemoteException{
+        return cambios.get(j.getIdTablero()).getAux();
     }
-
 
     private Tablero conseguirTablero(Jugador jugador){
         for (int i = 0;i<tableros.size();i++){
@@ -71,6 +85,49 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
         }
         return null;
     }
+
+    private void contextos(Jugador j){
+        System.out.println("jugador rival en cotexto: " + j.getIdTablero());
+        cambio c;
+        Tablero t;
+        for (int i = 0;i<cambios.size();i++){
+            c = cambios.get(i);
+            t = tableros.get(i);
+            System.out.println(c.getFj());
+            System.out.println(c.getJa().getSimbolo() + " " + c.getJna().getSimbolo() + " " + c.getAux().getSimbolo());
+            System.out.println(c.getJa().getIdTablero() + " " + c.getJna().getIdTablero() + " " + c.getAux().getIdTablero());
+            System.out.println(t + " " + t.getIdTablero());
+            System.out.println();
+        }
+    }
+
+    public void nada(Jugador j) throws RemoteException{
+        System.out.println();
+    }
+
+    private void JugadoresActivos(){
+        for(int i = 0;i<jugadores.size();i++){
+            System.out.print(jugadores.get(i).getSimbolo() + " " + jugadores.get(i).getPrueba());
+        }
+    }
+
+    public void datos(Jugador j) throws RemoteException {
+        System.out.println("jugador que toco: " + j.getSimbolo() + " idtablero: " + j.getIdTablero());
+        System.out.println("jugador actual en el tablero de jugador que toco: " + getJugadorActual(j));
+        cambio c;
+        Tablero t;
+        for (int i = 0;i<cambios.size();i++){
+            c = cambios.get(i);
+            t = tableros.get(i);
+            System.out.println(c.getFj());
+            System.out.println(c.getJa().getSimbolo() + " " + c.getJna().getSimbolo() + " " + c.getAux().getSimbolo());
+            System.out.println(c.getJa().getIdTablero() + " " + c.getJna().getIdTablero() + " " + c.getAux().getIdTablero());
+            System.out.println(t + " " + t.getIdTablero());
+            System.out.println();
+        }
+    }
+
+
 
     public boolean hacerMovimiento(int indice,Jugador jugador) throws RemoteException { //las celdas
         boolean valor = false;
@@ -86,8 +143,13 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
         }else{
             noactual = j1;
         }
-
-        System.out.println(faseActual + " " + j1.getSimbolo() + " " + j2.getSimbolo() + " " + actual.getSimbolo());
+        //JugadoresActivos();
+        //System.out.println("tableroPartida: " + tableroPartida);
+        //System.out.println("faseActual: " + faseActual);
+        //System.out.println("j1: " + j1.getSimbolo());
+        //System.out.println("j2: " + j2.getSimbolo());
+        //System.out.println("actual: " + actual.getSimbolo());
+        //System.out.println("noactual: " + noactual.getSimbolo());
         if (indice < 0 || indice >= 24 || faseActual == FaseJuego.FIN) {
             return valor;
         }
@@ -124,8 +186,8 @@ public class ModeloMolino extends ObservableRemoto implements IModeloMolino{
 
         cambios.get(tableroPartida.getIdTablero()).setCeldas(tableroPartida.getCeldas());
         cambios.get(tableroPartida.getIdTablero()).setFj(tableroPartida.getFaseActual());
-
-        notificarObservadores(cambios.get(idtableros-1));
+        cambios.get(tableroPartida.getIdTablero()).setIdtablero(tableroPartida.getIdTablero());
+        notificarObservadores(cambios.get(tableroPartida.getIdTablero()));
         return valor;
     }
 

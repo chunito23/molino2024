@@ -7,6 +7,7 @@ public class cambio implements Serializable {
     private Jugador jna;
     private Jugador Aux;
     private ArrayList<Celda> celdas;
+    private int idtablero;
 
     public cambio(FaseJuego fj,ArrayList<Celda> celdas,Jugador ja){
         this.fj = fj;
@@ -39,6 +40,15 @@ public class cambio implements Serializable {
     public void setJna(Jugador jna) {
         this.jna = jna;
     }
+
+    public int getIdtablero() {
+        return idtablero;
+    }
+
+    public void setIdtablero(int idtablero) {
+        this.idtablero = idtablero;
+    }
+
 
 
     public Jugador getJa() {

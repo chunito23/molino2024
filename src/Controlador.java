@@ -17,34 +17,30 @@ public class Controlador implements IControladorRemoto {
     }
 
 
-    public void setJugador(Jugador jugador) throws RemoteException {
+    public void setJugador(Jugador parametro) throws RemoteException {
         try {
-            this.j = jugador;
-            modelo.setJugador(jugador);
-        }catch (RemoteException e){
+            this.j = parametro;
+            modelo.setJugador(this.j);
+            // Recuperar el estado actualizado del jugador desde el modelo
+            this.j = modelo.getJugador(this.j);
+            System.out.println("despues de setear j.getprueba: " + this.j.getIdTablero());
+        } catch (RemoteException e) {
             e.printStackTrace();
         }
-
     }
+
 
     public Jugador getJugador()  throws RemoteException{
         return j;
     }
 
     public Jugador getJugadorActual() throws RemoteException {
-        return modelo.getJugadorActual(j.getIdTablero());
+        return modelo.getJugadorActual(j);
     }
 
-    public boolean hacerMovimiento(int indice) {
+    public boolean hacerMovimiento(int indice) throws RemoteException {
         boolean valor = false;
-        try {
-            if (j.getSimbolo() == modelo.getJugadorActual(j.getIdTablero()).getSimbolo()){
-                valor = modelo.hacerMovimiento(indice,j);
-            }
-        }catch (RemoteException e){
-            e.printStackTrace();
-            System.out.println("fallo al hacer movimiento");
-        }
+        valor = this.modelo.hacerMovimiento(indice,this.j);
         return valor;
     }
 
@@ -64,6 +60,9 @@ public class Controlador implements IControladorRemoto {
 
     @Override
     public void actualizar(IObservableRemoto modelo, Object cambios) throws RemoteException {
-        vista.actualizarVista(cambios);
+        cambio c = (cambio) cambios;
+        if (j.getIdTablero() == c.getIdtablero()){
+            vista.actualizarVista(cambios);
+        }
     }
 }

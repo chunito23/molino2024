@@ -8,6 +8,16 @@ public class Jugador implements Serializable {
     private int ganadas;
     private int idTablero;
 
+    public int getPrueba() {
+        return prueba;
+    }
+
+    public void setPrueba(int prueba) {
+        this.prueba = prueba;
+    }
+
+    private int prueba;
+
     public Jugador(char simbolo) {
         this.simbolo = simbolo;
         this.fichasDisponibles = 3; // Número inicial de fichas disponibles

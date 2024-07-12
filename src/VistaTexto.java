@@ -79,6 +79,8 @@ public class VistaTexto extends JFrame implements Ivista{
             }
         } catch (NumberFormatException e) {
             textArea.append("Error: ambos valores deben ser números enteros.\n");
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -109,7 +111,7 @@ public class VistaTexto extends JFrame implements Ivista{
             } else {
                 textArea.append("Movimiento exitoso.\n");
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | RemoteException e) {
             textArea.append("Error: todos los valores deben ser números enteros.\n");
         }
     }
@@ -132,6 +134,8 @@ public class VistaTexto extends JFrame implements Ivista{
             }
         } catch (NumberFormatException e) {
             textArea.append("Error: ambos valores deben ser números enteros.\n");
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
     }
 

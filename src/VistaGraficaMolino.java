@@ -47,8 +47,12 @@ public class VistaGraficaMolino extends JFrame implements Ivista{
                     boton.setBackground(Color.WHITE);
                     boton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
-                            if (!c.hacerMovimiento(indice)) {
-                                JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
+                            try {
+                                if (!c.hacerMovimiento(indice)) {
+                                    JOptionPane.showMessageDialog(null, "Este movimiento no es válido");
+                                }
+                            } catch (RemoteException ex) {
+                                throw new RuntimeException(ex);
                             }
 
                         }
@@ -66,6 +70,7 @@ public class VistaGraficaMolino extends JFrame implements Ivista{
         }else{
             botones.get(24).setBackground(Color.red);
         }
+        botones.get(24).setText(c.getJugadorActual().getSimbolo() + " " + c.getJugador().getSimbolo());
 
         add(panelTexto, BorderLayout.NORTH);
         add(panelTablero, BorderLayout.CENTER);
@@ -130,7 +135,7 @@ public class VistaGraficaMolino extends JFrame implements Ivista{
         }else{
             botones.get(24).setBackground(Color.red);
         }
-
+        botones.get(24).setText(c.getJugadorActual().getSimbolo() + " " + c.getJugador().getSimbolo());
     }
 
     public void mostrar() {
